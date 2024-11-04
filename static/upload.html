@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Image Upload</title>
+    <style>
+        /* Reset and general styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Form container styling */
+        form {
+            display: flex;
+            flex-direction: column; /* Align items vertically */
+            gap: 15px; /* Space between form elements */
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4a90e2;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #357abd;
+        }
+
+        #responseMessage {
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload Logo Image</h1>
+    <form id="uploadForm">
+        <label for="image">Choose an image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required>
+
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category">
+
+        <label for="product">Product:</label>
+        <input type="text" id="product" name="product">
+
+        <label for="brand">Brand:</label>
+        <input type="text" id="brand" name="brand">
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Upload Image</button>
+    </form>
+
+    <div id="responseMessage"></div> <!-- Div to show the response message -->
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(this); // Create a FormData object
+
+            try {
+                const response = await fetch('http://206.72.196.211:8000/logo-image', { // Adjust the URL if necessary
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json(); // Parse the JSON response
+
+                // Display the response message
+                document.getElementById('responseMessage').innerText = data.message; 
+
+                // Optional: Clear the form after submission
+                this.reset();
+            } catch (error) {
+                document.getElementById('responseMessage').innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

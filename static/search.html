@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Logo Image</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Search Logo Image</h2>
+    <form id="searchForm">
+        <input type="file" id="searchImage" name="file" required>
+        <button type="submit">Search</button>
+    </form>
+    <div id="searchResults"></div>
+
+    <script>
+document.getElementById("searchForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    console.log("Form submission initiated."); // Flag 1
+
+    const fileInput = document.getElementById("searchImage");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        console.error("No file selected."); // Flag 2
+        document.getElementById("searchResults").textContent = "No file selected.";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    console.log("File added to FormData:", file.name); // Flag 3
+
+    try {
+        const response = await fetch("http://206.72.196.211:8000/search", {
+            method: "POST",
+            body: formData
+        });
+
+        console.log("Response status:", response.status); // Flag 4
+        const results = await response.json();
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${results.detail || ''}`); // Flag 5
+        }
+
+        const resultsContainer = document.getElementById("searchResults");
+        resultsContainer.innerHTML = ""; // Clear previous results
+
+        if (results.length === 0) {
+            resultsContainer.textContent = "No matching images found."; // Flag 6
+            return;
+        }
+
+        results.forEach(result => {
+            const resultItem = document.createElement("div");
+            // Show only the image path as text
+            resultItem.innerHTML = `
+                <p>Image Path: ${result.image_path}</p>
+                <p>Score: ${result.score}</p>
+            `;
+            resultsContainer.appendChild(resultItem);
+        });
+    } catch (error) {
+        console.error("Error searching for image:", error); // Flag 7
+        document.getElementById("searchResults").textContent = "Failed to search for image";
+    }
+});
+
+    </script>
+</body>
+</html>
