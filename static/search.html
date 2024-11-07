@@ -33,7 +33,7 @@ document.getElementById("searchForm").addEventListener("submit", async (event) =
     console.log("File added to FormData:", file.name); // Flag 3
 
     try {
-        const response = await fetch("http://206.72.196.211:8000/search", {
+        const response = await fetch("https://liveuxstoryboard.com/search", {
             method: "POST",
             body: formData
         });
