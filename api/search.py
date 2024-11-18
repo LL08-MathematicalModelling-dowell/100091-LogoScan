@@ -1,5 +1,5 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException
-from models.responses import SearchResponse
+from models.responses import SearchResponse,ScoreEntry
 from config import database
 from gridfs import GridFS
 from bson import ObjectId
@@ -12,7 +12,6 @@ router = APIRouter()
 
 feature_collection = database['features']
 fs = GridFS(database)
-
 # Pre-load features and image paths from MongoDB
 features = []
 img_paths = []
@@ -28,7 +27,7 @@ for doc in feature_collection.find():
 
     filename = file_doc.get("filename")
     # Construct the image URL using the filename
-    img_path = f"http://192.168.10.9:8000/image/{filename}"
+    img_path = f"https://liveuxstoryboard.com/image/{filename}"
 
     features.append(feature)
     img_paths.append(img_path)
@@ -56,7 +55,18 @@ async def search_image(file: UploadFile = File(...)):
 
     ids = np.argsort(dists)[:3]
     
-    # Ensure you're using the correct list of img_paths corresponding to the features
-    scores = [{"score": float(dists[id]), "image_path": img_paths[id]} for id in ids]
-    
-    return scores
+        # Find the maximum distance for normalization
+    max_distance = np.max(dists)
+
+    # Convert distances to percentage similarity scores
+    scores = [
+        ScoreEntry(score=max(0, 100 - (dists[id] / max_distance) * 100), image_path=img_paths[id])
+        for id in ids
+    ]
+    print(scores[0].score)
+    # Check if the highest similarity score is below the 10% threshold
+    if scores[0].score < 5.0:
+        return SearchResponse(message="Image Not Exist")
+
+    # Prepare the response with sorted images and scores
+    return SearchResponse(score=scores, message="Image Exist")

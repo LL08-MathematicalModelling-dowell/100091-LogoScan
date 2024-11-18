@@ -58,7 +58,8 @@
             border-radius: 4px;
         }
 
-        button[type="submit"] {
+        button[type="submit"],
+        button {
             width: 100%;
             padding: 10px;
             background-color: #4a90e2;
@@ -70,7 +71,7 @@
             transition: background-color 0.3s;
         }
 
-        button[type="submit"]:hover {
+        button:hover {
             background-color: #357abd;
         }
 
@@ -80,13 +81,45 @@
             font-weight: bold;
             text-align: center;
         }
+
+        /* Camera container */
+        #captureContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            display: none;
+        }
+
+        video {
+            max-width: 90%;
+            border-radius: 8px;
+        }
+
+        #captureButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <h1>Upload Logo Image</h1>
     <form id="uploadForm">
-        <label for="image">Choose an image:</label>
-        <input type="file" id="image" name="image" accept="image/*" required>
+        <label for="image">Choose an image or capture a new one:</label>
+        <input type="file" id="image" name="image" accept="image/*">
+        <button type="button" id="openCamera">Take Photo</button>
 
         <label for="category">Category:</label>
         <input type="text" id="category" name="category">
@@ -106,29 +139,75 @@
         <button type="submit">Upload Image</button>
     </form>
 
-    <div id="responseMessage"></div> <!-- Div to show the response message -->
+    <div id="responseMessage"></div>
+
+    <!-- Hidden container for camera feed -->
+    <div id="captureContainer">
+        <video id="cameraFeed"></video>
+        <button id="captureButton">Capture Photo</button>
+    </div>
 
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
+        const openCamera = document.getElementById('openCamera');
+        const captureContainer = document.getElementById('captureContainer');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const captureButton = document.getElementById('captureButton');
+        const uploadForm = document.getElementById('uploadForm');
+        const responseMessage = document.getElementById('responseMessage');
+        const imageInput = document.getElementById('image');
+        let capturedBlob = null;
 
-            const formData = new FormData(this); // Create a FormData object
+        // Open Camera
+        openCamera.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                cameraFeed.srcObject = stream;
+                cameraFeed.play();
+                captureContainer.style.display = 'flex';
+            } catch (error) {
+                alert('Unable to access camera. Please check permissions.');
+            }
+        });
+
+        // Capture Photo
+        captureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(blob => {
+                capturedBlob = blob;
+                captureContainer.style.display = 'none';
+                cameraFeed.srcObject.getTracks().forEach(track => track.stop());
+                alert('Photo captured. Ready to submit.');
+            }, 'image/jpeg');
+        });
+
+        // Submit Form
+        uploadForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            if (capturedBlob) {
+                formData.set('image', capturedBlob, 'captured_image.jpg');
+            } else if (imageInput.files.length === 0) {
+                alert('Please upload or capture an image.');
+                return;
+            }
 
             try {
-                const response = await fetch('https://liveuxstoryboard.com/logo-image', { // Adjust the URL if necessary
+                const response = await fetch('https://liveuxstoryboard.com/logo-image', {
                     method: 'POST',
                     body: formData,
                 });
-
-                const data = await response.json(); // Parse the JSON response
-
-                // Display the response message
-                document.getElementById('responseMessage').innerText = data.message; 
-
-                // Optional: Clear the form after submission
-                this.reset();
+                const data = await response.json();
+                responseMessage.innerText = data.message;
+                uploadForm.reset();
+                capturedBlob = null;
             } catch (error) {
-                document.getElementById('responseMessage').innerText = `Error: ${error.message}`;
+                responseMessage.innerText = `Error: ${error.message}`;
             }
         });
     </script>
