@@ -18,16 +18,10 @@ img_paths = []
 for doc in feature_collection.find():
     # Get the feature array from the document
     feature = np.array(doc['feature'])  # Assuming 'feature' is stored as a list
-    image_id = doc['id']  # Adjust this if needed for the actual file ID field
+    image_id = doc.get("id")  # Adjust this if needed for the actual file ID field
 
-    # Retrieve the document from the fs.files collection using the image_id
-    file_doc = database.fs.files.find_one({"_id": ObjectId(image_id)})
-
-    # Check if the file document was found
-
-    filename = file_doc.get("filename")
-    # Construct the image URL using the filename
-    img_path = f"https://liveuxstoryboard.com/image/{filename}"
+    # Construct the image URL using the image ID
+    img_path = f"https://liveuxstoryboard.com/image/{image_id}"
 
     features.append(feature)
     img_paths.append(img_path)
@@ -38,15 +32,21 @@ features = np.array(features)
 fe = FeatureExtractor()
 present_dir = os.path.dirname(os.path.abspath(__file__))
 
-@router.post("/search", response_model=list[SearchResponse])
+@router.post("/search", response_model=SearchResponse)
 async def search_image(file: UploadFile = File(...)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file selected")
+    image_filename = file.filename
 
-    img = Image.open(file.file)
     upload_image_path = f"{present_dir}/upload_folder"
     os.makedirs(upload_image_path, exist_ok=True)
-    uploaded_img_path = os.path.join(upload_image_path, file.filename)
+    uploaded_img_path = os.path.join(upload_image_path, image_filename)
+
+    with open(uploaded_img_path, 'wb') as f:
+        contents = await file.read()
+        f.write(contents)
+
+    img = Image.open(uploaded_img_path)   
     img.save(uploaded_img_path)
 
     query_feature = fe.extract(img)

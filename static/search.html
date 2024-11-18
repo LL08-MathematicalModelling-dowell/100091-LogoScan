@@ -19,8 +19,8 @@
     </style>
 </head>
 <body>
-    <h1>Search Logo Image</h1>
-    <form id="searchForm">
+    <h1>Verify Logo Image</h1>
+    <form id="verifyForm">
         <label for="image">Upload an image:</label>
         <input type="file" id="imageInput" name="image" accept="image/*">
         
@@ -74,14 +74,14 @@
             }, 'image/jpeg');
         });
 
-        document.getElementById('searchForm').addEventListener('submit', async function (event) {
+        document.getElementById('verifyForm').addEventListener('submit', async function (event) {
             event.preventDefault();
             const formData = new FormData();
             
             if (capturedImageBlob) {
-                formData.append('image', capturedImageBlob, 'captured_image.jpg');
+                formData.append('file', capturedImageBlob, 'captured_image.jpg');
             } else if (imageInput.files.length > 0) {
-                formData.append('image', imageInput.files[0]);
+                formData.append('file', imageInput.files[0]);
             } else {
                 alert('Please upload an image or capture a new one.');
                 return;
