@@ -6,6 +6,7 @@ DowellLogoScan/
 │   ├── auth.py           # Contains authentication-related endpoints
 │   ├── upload.py         # Contains upload-related endpoints
 │   └── search.py         # Contains search-related endpoints
+    └── view_image.py         # Contains View_image-related endpoints
 ├── config/               # Folder for configurations
 │   ├── __init__.py
 │   └── db.py             # Contains MongoDB connection setup
