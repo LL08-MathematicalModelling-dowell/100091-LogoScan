@@ -1,9 +1,9 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException
-from models.responses import SearchResponse,ScoreEntry
-from config import database
+from ..models.responses import SearchResponse,ScoreEntry
+from ..config import database
 from gridfs import GridFS
 from bson import ObjectId
-from models import FeatureExtractor
+from ..models import FeatureExtractor
 import numpy as np
 from PIL import Image
 import os

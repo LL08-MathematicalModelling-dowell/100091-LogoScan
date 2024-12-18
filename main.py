@@ -1,10 +1,19 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from api import routers
+from .api import auth as auth_router
+from .api import api as api_router
+from .api import view_image as view_router
+from .api import search as search_router
 from fastapi.middleware.cors import CORSMiddleware
+from .config.startup import preload_features
 
 app = FastAPI()
 
+
+@app.on_event("startup")
+async def startup_event():
+    features, img_urls = await preload_features()
+    api_router.setfeatures(features, img_urls)
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,12 +23,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routes
-for router in routers:
-    app.include_router(router)
+app.include_router(auth_router.router)
+app.include_router(api_router.router)
+# app.include_router(search_router.router)
+# app.include_router(verify_router.router)
+app.include_router(view_router.router)
 
 # Serve static files
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory="DowellLogoScan/static", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn

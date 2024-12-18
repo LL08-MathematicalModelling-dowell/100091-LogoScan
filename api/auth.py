@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Form, HTTPException
-from models import AuthResponse
+from ..models import AuthResponse
 
 router = APIRouter()
 

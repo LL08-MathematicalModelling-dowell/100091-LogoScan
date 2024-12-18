@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response
 from bson import ObjectId
-from config import database
+from ..config import database
 import gridfs
 
 router = APIRouter()

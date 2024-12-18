@@ -1,20 +1,29 @@
 DowellLogoScan/
 │
-├── main.py               # The main entry point to start the FastAPI server
-├── api/                  # Folder for organizing API routes
-│   ├── __init__.py       # Makes this folder a Python package
-│   ├── auth.py           # Contains authentication-related endpoints
-│   ├── upload.py         # Contains upload-related endpoints
-│   └── search.py         # Contains search-related endpoints
-├── config/               # Folder for configurations
+├── main.py                         # The main entry point to start the FastAPI server
+├── api/                            # Folder for organizing API routes
+│   ├── __init__.py                 # Makes this folder a Python package
+│   ├── auth.py                     # Contains authentication-related endpoints
+│   ├── api.py                      # Contains All API-related endpoints
+│   └── search.py                   # Contains search-related endpoints
+│   └── view_image.py               # Contains view-image-related endpoints
+│   └── admin_img_frame             # Upload image folder
+│   └── upload_folder               # Search image folder
+│   └── uploaded_video              # Upload Video Folder
+│   └── Extracted_Frames            # Extracted Frame from video folder
+├── config/                         # Folder for configurations
 │   ├── __init__.py
-│   └── db.py             # Contains MongoDB connection setup
-├── models/               # Folder for response models and data models
+│   └── db.py                       # Contains MongoDB connection setup
+│   └── startup.py                  # Contains functionality of Preload Data from Database
+├── models/                         # Folder for response models and data models
 │   ├── __init__.py
-│   ├── responses.py      # Response models for structured JSON responses
-│   └── extractor.py      # Feature extraction logic
-├── static/               # Folder for main html, upload html and search html
-    └── index.html        # main Site
-    └── search.html       # Search ( Comparison) Site
-    └── upload.html       # Upload Site
-└── config.json           # Configuration file for MongoDB and other settings
+│   ├── responses.py                # Response models for structured JSON responses
+│   └── feature_extractor.py        # Feature extraction logic
+├── static/                         # Folder for main html, upload html and search html
+│   └── index.html                  # main Site
+│   └──search.html                  # Search ( Comparison) Site
+│   └──upload.html                  # Upload Site
+│   └──scan.html                    # Scan Site
+│   └──styles.css                   # Website Style
+└── config.json                     # Configuration file for MongoDB and other settings
+└──requirments.txt                  # All the pakages need to be use to run this application

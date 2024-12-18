@@ -106,7 +106,7 @@ button[type="submit"]:hover {
     border-radius: 4px;
 }
 
-#responseMessage {
+#responseMessage, #responseMessage1 {
     margin-top: 15px;
     padding: 10px;
     font-weight: bold;
