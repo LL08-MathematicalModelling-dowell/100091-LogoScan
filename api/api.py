@@ -310,6 +310,6 @@ async def upload_video(
     except Exception as e:
         print(f"Error while deleting folder content: {e}")
 
-    return "All frames and features uploaded successfully."
+    return {"message": "Upload successful, processing started."}
 
                 
