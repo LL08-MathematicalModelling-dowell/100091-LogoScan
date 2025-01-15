@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Scan</title>
+    <style>
+        /* Reset and general styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Form container styling */
+        form {
+            display: flex;
+            flex-direction: column; /* Align items vertically */
+            gap: 15px; /* Space between form elements */
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button[type="submit"],
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4a90e2;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        #responseMessage {
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Camera container */
+        #captureContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            display: none;
+        }
+
+        video {
+            max-width: 90%;
+            border-radius: 8px;
+        }
+
+        #captureButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>OCR Scan Image</h1>
+    <form id="uploadForm">
+        <label for="image">Choose an image or capture a new one:</label>
+        <input type="file" id="image" name="image" accept="image/*">
+        <button type="button" id="openCamera">Take Photo</button>
+
+        <button type="submit" id="uploadButton">Upload</button>
+        <button type="button" id="detectTextBtn">Detect Text</button>
+    </form>
+
+    <div id="responseMessage"></div>
+    <div id="ocrText"></div>
+
+    <!-- Hidden container for camera feed -->
+    <div id="captureContainer" style="display: none;">
+        <video id="cameraFeed" width="320" height="240"></video>
+        <button id="captureButton">Capture Photo</button>
+    </div>
+
+    <script>
+        const openCamera = document.getElementById('openCamera');
+        const captureContainer = document.getElementById('captureContainer');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const captureButton = document.getElementById('captureButton');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadButton = document.getElementById('uploadButton');
+        const detectTextBtn = document.getElementById('detectTextBtn');
+        const responseMessage = document.getElementById('responseMessage');
+        const ocrText = document.getElementById('ocrText');
+        const imageInput = document.getElementById('image');
+        let capturedBlob = null;
+
+        // Open Camera
+        openCamera.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                cameraFeed.srcObject = stream;
+                cameraFeed.play();
+                captureContainer.style.display = 'flex';
+            } catch (error) {
+                alert('Unable to access camera. Please check permissions.');
+            }
+        });
+
+        // Capture Photo
+        captureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(blob => {
+                capturedBlob = blob;
+                captureContainer.style.display = 'none';
+                cameraFeed.srcObject.getTracks().forEach(track => track.stop());
+                alert('Photo captured. Ready to submit.');
+            }, 'image/jpeg');
+        });
+
+        // Upload the Image (send to /upload-image)
+        uploadForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            // Check if the user captured an image or uploaded one
+            if (capturedBlob) {
+                formData.set('image', capturedBlob, 'captured_image.jpg');
+            } else if (imageInput.files.length > 0) {
+                formData.set('image', imageInput.files[0]);
+            } else {
+                alert('Please upload or capture an image.');
+                return;
+            }
+
+            try {
+                // Send the image to the backend for processing
+                const response = await fetch('http://206.72.196.211:8001/upload-image', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+
+                // Show the response message
+                responseMessage.innerText = data.message;
+
+                
+                capturedBlob = null;
+            } catch (error) {
+                responseMessage.innerText = `Error: ${error.message}`;
+                ocrText.innerText = '';
+            }
+        });
+
+        // Detect Text (trigger OCR after image upload)
+        detectTextBtn.addEventListener('click', async function () {
+            const formData = new FormData(uploadForm);
+
+            // Check if the user captured an image or uploaded one
+            if (capturedBlob) {
+                formData.set('image', capturedBlob, 'captured_image.jpg');
+            } else if (imageInput.files.length > 0) {
+                formData.set('image', imageInput.files[0]);
+            } else {
+                alert('Please upload or capture an image.');
+                return;
+            }
+
+            try {
+                // Send the image to the OCR API
+                const ocrResponse = await fetch('http://206.72.196.211:8001/ocr-scan', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const ocrData = await ocrResponse.json();
+
+                // Show OCR result
+                ocrText.innerText = `Extracted Text: ${ocrData.ocr_text}`;
+            } catch (error) {
+                ocrText.innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
