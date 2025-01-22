@@ -192,7 +192,7 @@
 
             try {
                 // Send the image to the backend for processing
-                const response = await fetch('http://206.72.196.211:8001/upload-image', {
+                const response = await fetch('https://liveuxstoryboard.com/upload-image', {
                     method: 'POST',
                     body: formData,
                 });
@@ -225,7 +225,7 @@
 
             try {
                 // Send the image to the OCR API
-                const ocrResponse = await fetch('http://206.72.196.211:8001/ocr-scan', {
+                const ocrResponse = await fetch('https://liveuxstoryboard.com/ocr-scan', {
                     method: 'POST',
                     body: formData,
                 });

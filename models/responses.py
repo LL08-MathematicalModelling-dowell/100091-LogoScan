@@ -15,3 +15,10 @@ class ScoreEntry(BaseModel):
 class SearchResponse(BaseModel):
     score: Optional[List[ScoreEntry]] = None  # Make score optional
     message: str
+
+
+class Upload_Response(BaseModel):
+    message: str    
+
+class OCR_Response(BaseModel):
+    ocr_text: str 
