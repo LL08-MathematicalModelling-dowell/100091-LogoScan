@@ -14,7 +14,17 @@ import numpy as np
 import cv2
 import shutil
 from sklearn.metrics.pairwise import cosine_similarity
+from datetime import datetime
+import requests
+import json
 import easyocr
+
+
+# Extract the current time for dowell_time
+dowell_time = {
+    "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Current timestamp in the required format
+}
+
 
 router = APIRouter()
 fs = gridfs.GridFS(database)
@@ -37,6 +47,43 @@ def get_features():
 def get_image():
     global img_urls
     return img_urls
+
+def get_event_id():
+    dd = datetime.now()
+    time = dd.strftime("%d:%m:%Y,%H:%M:%S")
+    url = "https://uxlivinglab.pythonanywhere.com/create_event"
+
+    data = {
+        "platformcode": "FB",
+        "citycode": "101",
+        "daycode": "0",
+        "dbcode": "pfm",
+        "ip_address": "192.168.0.41",
+        "login_id": "lav",
+        "session_id": "new",
+        "processcode": "1",
+        "regional_time": time,
+        "dowell_time": time,
+        "location": "22446576",
+        "objectcode": "1",
+        "instancecode": "100051",
+        "context": "afdafa ",
+        "document_id": "3004",
+        "rules": "some rules",
+        "status": "work",
+        "data_type": "learn",
+        "purpose_of_usage": "add",
+        "colour": "color value",
+        "hashtags": "hash tag alue",
+        "mentions": "mentions value",
+        "emojis": "emojis",
+
+    }
+
+    r = requests.post(url, json=data)
+    response_data = json.loads(r.text)
+    event_id = response_data.get('event_id')
+    return event_id
 
 @router.get("/health-check", status_code=200)
 async def health_check():
@@ -108,7 +155,9 @@ async def upload_logo_image(
             'category': category,
             'product': product,
             'brand': brand,
-            'flag': flag
+            'flag': flag,
+            'event_id': get_event_id(),
+            'dowell_time': dowell_time  # Add dowell_time field
         }
         database.features.insert_one(data)
 
@@ -282,6 +331,8 @@ async def upload_video(
                 'product': product,
                 'brand': brand,
                 'flag': "video",  # Example flag, replace if necessary
+                'event_id': get_event_id(),
+                'dowell_time': dowell_time  # Add dowell_time field
             }
             documents.append(document)
 
