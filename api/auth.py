@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Form, HTTPException
 from ..models import AuthResponse
 
-router = APIRouter()
+router = APIRouter(tags= ["Auth"])
 
 
 @router.post("/auth", response_model=AuthResponse)

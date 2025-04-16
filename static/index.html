@@ -4,18 +4,2518 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dowell Logo Scan</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        * {
+
+            /* Camera Container Styles */
+            .camera-container {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                margin: 20px 0;
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+                position: relative;
+            }
+
+            .camera-container video {
+                width: 100%;
+                max-width: 500px;
+                height: auto;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                background-color: #000;
+            }
+
+            .camera-container button {
+                margin-top: 10px;
+                padding: 10px 20px;
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .camera-container button:hover {
+                background-color: #3e8e41;
+                transform: translateY(-2px);
+            }
+
+            /* Close button for camera containers */
+            .camera-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10;
+            }
+
+            .camera-close:hover {
+                background: rgba(0, 0, 0, 0.9);
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .camera-container {
+                    padding: 15px;
+                }
+                
+                .camera-container video {
+                    max-width: 100%;
+                }
+            }
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f8f8f8;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #2e7d32;
+            color: white;
+            padding: 30px 0;
+            height: 100vh;
+            position: fixed;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .menu-item {
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+            margin: 5px 10px;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        
+        .menu-item:hover {
+            background-color: #4caf50;
+            transform: translateX(5px);
+        }
+        
+        .menu-item.active {
+            background-color: #4caf50;
+            font-weight: 500;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .content-section {
+            display: none;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid #4caf50;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        
+        p {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .section-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        /* Common Form Styling */
+        .upload-form, .verify-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        /* Drag and drop area styling */
+        .file-upload-container {
+            margin-bottom: 20px;
+        }
+
+        .file-upload {
+            border: 2px dashed #4caf50;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: rgba(76, 175, 80, 0.05);
+            position: relative;
+        }
+
+        .file-upload:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        .file-upload i {
+            font-size: 48px;
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+
+        .file-upload p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-preview {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-upload-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Filter section styling */
+        .filter-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        select, input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            border-color: #4caf50;
+            outline: none;
+        }
+
+        /* Results styling */
+        .results-container {
+            margin-top: 30px;
+        }
+
+        .result-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+
+        .result-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-score {
+            color: #2e7d32;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3e8e41;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        /* Response message */
+        .response-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+
+        .error-message {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+
+        /* Camera container */
+        #captureContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none; /* Only one display property */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        #cameraFeed {
+            max-width: 90%;
+            max-height: 70vh;
+            border-radius: 8px;
+        }
+
+        #captureButton {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #captureButton:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Scan Image Specific Styles */
+        .scan-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .camera-view {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            width: 400px;
+            height: 400px;
+            border: 1px solid #ddd;
+            position: relative;
+            margin: 0 auto;
+            transition: all 0.3s;
+            border-radius: 0;
+        }
+        
+        .camera-view.circle {
+            border-radius: 50%;
+        }
+        
+        .camera-view.rectangle {
+            height: 250px;
+        }
+
+        .camera-view video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-view canvas {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .shape-selector {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .progress-bar {
+            background: #ddd;
+            height: 20px;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4caf50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.2s;
+        }
+
+        .progress-percentage {
+            display: block;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .metadata-form {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Login Form Styling */
+        #loginContainer {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid #4caf50;
+        }
+
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ocr-result-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            min-height: 100px;
+        }
+        
+        .ocr-text {
+            white-space: pre-wrap;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        
+        .ocr-confidence {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+                
+        /* Additional Barcode Scanner styles */
+        .barcode-result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .barcode-result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .barcode-type {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .barcode-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            word-break: break-all;
+        }
+        
+        .barcode-scan-hint {
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        
+        .barcode-camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        #barcodeScanner {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .barcode-scan-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 30%;
+            border: 3px solid #4caf50;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        /* API Documentation Styles */
+        .api-documentation {
+            margin-top: 40px;
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .api-endpoint {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .api-endpoint:last-child {
+            border-bottom: none;
+        }
+
+        .api-details {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .api-usage {
+            margin-top: 40px;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .api-usage ol {
+            margin: 15px 0 25px 25px;
+        }
+
+        .api-usage li {
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 25px;
+            }
+            
+            .menu-item {
+                padding: 12px 20px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .camera-view {
+                width: 100%;
+                height: 300px;
+            }
+            
+            .camera-view.rectangle {
+                height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Dowell Logo Scan</h1>
-        <p>Select an option to get started:</p>
-        <div class="buttons">
-            <a href="upload.html" class="button">Upload Logo Image</a>
-            <a href="search.html" class="button">Search Logo Image</a>
-            <a href="scan.html" class="button">Scan Logo Image</a>
-            <a href="ocr_scan.html" class="button">OCR Scan Image</a>
-        </div>
+    <div class="sidebar">
+        <h2><i class="fas fa-camera-retro"></i> Dowell Logo Scan</h2>
+        <a href="#" class="menu-item active" onclick="showSection('home')">
+            <i class="fas fa-home section-icon"></i>Home
+        </a>
+        <a href="#" class="menu-item" onclick="showSection('upload')">
+            <i class="fas fa-upload section-icon"></i>Upload Snapshot
+        </a>
+        <a href="#" class="menu-item" onclick="showSection('verify')">
+            <i class="fas fa-search section-icon"></i>Search & Verify
+        </a>
+        <a href="#" class="menu-item" onclick="showSection('scan')">
+            <i class="fas fa-camera section-icon"></i>Scan Image
+        </a>
+        <a href="#" class="menu-item" onclick="showSection('ocr')">
+            <i class="fas fa-font section-icon"></i>OCR Scan
+        </a>
+        <a href="#" class="menu-item" onclick="showSection('barcode')">
+            <i class="fas fa-barcode section-icon"></i>Barcode Scanner
+        </a>
     </div>
+    
+    <div class="main-content">
+        <div id="home" class="content-section active">
+            <h1>Welcome to Dowell Logo Scan</h1>
+            <p>Select an option from the menu to get started with our powerful image scanning and verification tools.</p>
+            
+            <div class="api-documentation">
+                <h2><i class="fas fa-code"></i> API Documentation</h2>
+                
+                <div class="api-endpoint">
+                    <h3>1. Admin Authentication API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>POST /auth</code></p>
+                        <p><strong>Description:</strong> Authenticate admin users.</p>
+                        
+                        <h4>Request Format:</h4>
+                        <pre>
+        Form Data:
+        - username: (required) Admin username
+        - password: (required) Admin password
+                        </pre>
+                        
+                        <h4>Response Format (Success):</h4>
+                        <pre>
+        {
+            "authenticated": true
+        }
+                        </pre>
+                        
+                        <h4>Response Format (Error):</h4>
+                        <pre>
+        HTTP 401 Unauthorized
+        {
+            "detail": "Authentication failed"
+        }
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h3>2. Logo Image Upload API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>POST /logo-image</code></p>
+                        <p><strong>Description:</strong> Upload an image for logo detection and storage.</p>
+                        
+                        <h4>Request Format:</h4>
+                        <pre>
+        Multipart Form Data:
+        - image: (required) The image file to upload
+        - category: (optional) Category of the product
+        - product: (optional) Product name
+        - brand: (optional) Brand name
+                        </pre>
+                        
+                        <h4>Response Format (Success):</h4>
+                        <pre>
+        {
+            "message": "Image and features uploaded successfully"
+        }
+                        </pre>
+                        
+                        <h4>Response Format (Error - Duplicate):</h4>
+                        <pre>
+        {
+            "message": "Features already exist for this image"
+        }
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h3>3. Logo Verification API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>POST /verify</code></p>
+                        <p><strong>Description:</strong> Verify an image against stored logos.</p>
+                        
+                        <h4>Request Format:</h4>
+                        <pre>
+        Multipart Form Data:
+        - image: (required) The image file to verify
+                        </pre>
+                        
+                        <h4>Response Format (Success):</h4>
+                        <pre>
+        {
+            "score": [
+                {
+                    "score": 95.5,
+                    "image_path": "http://example.com/image/123"
+                }
+            ],
+            "message": "Image Exist"
+        }
+                        </pre>
+                        
+                        <h4>Response Format (No Match):</h4>
+                        <pre>
+        {
+            "message": "Image Not Exist"
+        }
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h3>4. Video Upload API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>POST /upload_video/</code></p>
+                        <p><strong>Description:</strong> Upload a video for frame-by-frame logo analysis.</p>
+                        
+                        <h4>Request Format:</h4>
+                        <pre>
+        Multipart Form Data:
+        - video: (required) The video file to upload
+        - fps: (required) Total number of pictures
+        - category: (required) Category of the product
+        - product: (required) Product name
+        - brand: (required) Brand name
+                        </pre>
+                        
+                        <h4>Response Format:</h4>
+                        <pre>
+        {
+            "message": "Upload successful, processing started"
+        }
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h3>5. Image Retrieval API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>GET /image/{image_id}</code></p>
+                        <p><strong>Description:</strong> Retrieve a stored image by its ID.</p>
+                        
+                        <h4>Response Format:</h4>
+                        <pre>
+        Binary image data with appropriate Content-Type header
+                        </pre>
+                        
+                        <h4>Response Format (Error):</h4>
+                        <pre>
+        HTTP 404 Not Found (if image doesn't exist)
+        HTTP 500 Internal Server Error (for other errors)
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h3>6. Barcode Scan API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>POST /scan-barcode/</code></p>
+                        <p><strong>Description:</strong> Detect and decode barcodes from an image.</p>
+                        
+                        <h4>Request Format:</h4>
+                        <pre>
+        Multipart Form Data:
+        - file: (required) The image file containing barcode
+                        </pre>
+                        
+                        <h4>Response Format (Success):</h4>
+                        <pre>
+        {
+            "barcodes": [
+                {
+                    "data": "barcode_data",
+                    "type": "barcode_type"
+                }
+            ]
+        }
+                        </pre>
+                        
+                        <h4>Response Format (Error):</h4>
+                        <pre>
+        HTTP 400 Bad Request
+        {
+            "detail": "No barcode found in the image"
+        }
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-endpoint">
+                    <h3>7. OCR Scan API</h3>
+                    <div class="api-details">
+                        <p><strong>Endpoint:</strong> <code>POST /ocr-scan</code></p>
+                        <p><strong>Description:</strong> Extract text from an image using OCR.</p>
+                        
+                        <h4>Request Format:</h4>
+                        <pre>
+        Multipart Form Data:
+        - image: (required) The image file to process
+                        </pre>
+                        
+                        <h4>Response Format:</h4>
+                        <pre>
+        {
+            "ocr_text": "Extracted text from image"
+        }
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="api-usage">
+                    <h3>API Integration Guide</h3>
+                    <h4>Authentication</h4>
+                    <p>Most endpoints require admin authentication. First authenticate using the /auth endpoint:</p>
+                    <pre>
+        const authResponse = await fetch('http://127.0.0.1:8000/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'username': 'dowell',
+                'password': 'dowell'
+            })
+        });
+                    </pre>
+                    
+                    <h4>Example: Uploading a Logo Image</h4>
+                    <pre>
+        async function uploadLogo(imageFile, category, product, brand) {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+            formData.append('category', category);
+            formData.append('product', product);
+            formData.append('brand', brand);
+            
+            const response = await fetch('http://127.0.0.1:8000/logo-image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            return await response.json();
+        }
+                    </pre>
+                    
+                    <h4>Example: Verifying a Logo</h4>
+                    <pre>
+        async function verifyLogo(imageFile) {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+            
+            const response = await fetch('http://127.0.0.1:8000/verify', {
+                method: 'POST',
+                body: formData
+            });
+            
+            return await response.json();
+        }
+                    </pre>
+                    
+                    <h4>Error Handling</h4>
+                    <p>Always check the response status and handle errors appropriately:</p>
+                    <pre>
+        try {
+            const response = await fetch(apiEndpoint, options);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'API request failed');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            // Show user-friendly error message
+        }
+                    </pre>
+                </div>
+            </div>
+        </div>
+        
+        <!-- UPLOAD SNAPSHOT SECTION -->
+        <div id="upload" class="content-section">
+            <h1><i class="fas fa-upload"></i> Upload Snapshot</h1>
+            
+            <form id="uploadForm" class="upload-form">
+                <div class="file-upload-container">
+                    <div class="file-upload" id="uploadDropArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag and drop your image here or click to browse</p>
+                        <input type="file" id="uploadImageInput" name="image" accept="image/*">
+                        <div class="file-upload-preview" id="uploadFilePreview">
+                            <img id="uploadPreviewImage" src="#" alt="Preview">
+                            <p id="uploadFileName"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="uploadOpenCamera" class="btn btn-secondary">
+                    <i class="fas fa-camera"></i> Take Photo Instead
+                </button>
+
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <input type="text" id="category" name="category" placeholder="Enter category">
+                </div>
+
+                <div class="form-group">
+                    <label for="product">Product:</label>
+                    <input type="text" id="product" name="product" placeholder="Enter product name">
+                </div>
+
+                <div class="form-group">
+                    <label for="brand">Brand:</label>
+                    <input type="text" id="brand" name="brand" placeholder="Enter brand name">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Image
+                </button>
+            </form>
+
+            <div id="uploadResponseMessage" class="response-message" style="display: none;"></div>
+            
+            <!-- Upload Camera Container -->
+            <!-- For Upload Snapshot -->
+            <div id="uploadCameraContainer" class="camera-container">
+                <button class="camera-close" onclick="closeUploadCamera()">×</button>
+                <video id="uploadCameraFeed"></video>
+                <button id="uploadCaptureButton" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Capture Photo
+                </button>
+            </div>
+
+        </div>
+        
+        <!-- SEARCH & VERIFY SECTION -->
+        <div id="verify" class="content-section">
+            <h1><i class="fas fa-search-check"></i> Search & Verify Snapshot</h1>
+            
+            <form id="verifyForm" class="verify-form">
+                <div class="file-upload-container">
+                    <div class="file-upload" id="verifyDropArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag and drop your image here or click to browse</p>
+                        <input type="file" id="verifyImageInput" name="image" accept="image/*">
+                        <div class="file-upload-preview" id="verifyFilePreview">
+                            <img id="verifyPreviewImage" src="#" alt="Preview">
+                            <p id="verifyFileName"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="verifyOpenCamera" class="btn btn-secondary">
+                    <i class="fas fa-camera"></i> Take Photo Instead
+                </button>
+
+                <div class="filter-section">
+                    <h3><i class="fas fa-filter"></i> Filter Results</h3>
+                    
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filter1">Filter 1:</label>
+                            <select id="filter1">
+                                <option value="">None</option>
+                                <option value="category">Category</option>
+                                <option value="product">Product</option>
+                                <option value="brand">Brand</option>
+                                <option value="score">Score</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="filter2">Filter 2:</label>
+                            <select id="filter2">
+                                <option value="">None</option>
+                                <option value="category">Category</option>
+                                <option value="product">Product</option>
+                                <option value="brand">Brand</option>
+                                <option value="score">Score</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filter3">Filter 3:</label>
+                            <select id="filter3">
+                                <option value="">None</option>
+                                <option value="category">Category</option>
+                                <option value="product">Product</option>
+                                <option value="brand">Brand</option>
+                                <option value="score">Score</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="period">Time Period:</label>
+                            <select id="period">
+                                <option value="">None</option>
+                                <option value="last_1_day">Last 1 Day</option>
+                                <option value="last_30_days">Last 30 Days</option>
+                                <option value="last_90_days">Last 90 Days</option>
+                                <option value="last_180_days">Last 180 Days</option>
+                                <option value="last_1_year">Last 1 Year</option>
+                                <option value="life_time">Life Time</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="filterButton" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Verify Image
+                </button>
+            </form>
+
+            <div id="verifyResponseMessage" class="response-message" style="display: none;"></div>
+            
+            <div class="results-container" id="resultsContainer"></div>
+            
+            <!-- Verify Camera Container -->
+            <!-- For Search & Verify -->
+            <div id="verifyCameraContainer" class="camera-container">
+                <button class="camera-close" onclick="closeVerifyCamera()">×</button>
+                <video id="verifyCameraFeed"></video>
+                <button id="verifyCaptureButton" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Capture Photo
+                </button>
+            </div>
+
+        </div>
+        
+        <!-- SCAN IMAGE SECTION -->
+        <div id="scan" class="content-section">
+            <div id="loginContainer">
+                <h1><i class="fas fa-lock"></i> Admin Login</h1>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="scanUsername">Username:</label>
+                        <input type="text" id="scanUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="scanPassword">Password:</label>
+                        <input type="password" id="scanPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <div id="loginMessage" class="response-message"></div>
+            </div>
+
+            <div id="masterContainer" style="display: none;">
+                <h1><i class="fas fa-camera"></i> Scan Image</h1>
+                <div class="scan-container">
+                    <!-- Shape Selector -->
+                    <select id="shape-style" class="shape-selector">
+                        <option value="square" selected>Square</option>
+                        <option value="circle">Circle</option>
+                        <option value="rectangle">Rectangle</option>
+                    </select>
+
+                    <!-- Camera Container -->
+                    <div class="camera-view" id="camera-container">
+                        <video id="video" autoplay playsinline muted></video>
+                        <canvas id="canvas"></canvas>
+                        <div class="overlay" id="overlay"></div>
+                    </div>
+
+                    <div id="scanResponseMessage" class="response-message"></div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar"></div>
+                        </div>
+                        <span class="progress-percentage" id="progress-percentage">0%</span>
+                    </div>
+
+                    <!-- Form for Metadata -->
+                    <form class="metadata-form" id="scanUploadForm">
+                        <div class="form-group">
+                            <label for="fps">Pictures:</label>
+                            <input type="number" id="fps" name="fps" placeholder="Enter number of pictures" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scanCategory">Category:</label>
+                            <input type="text" id="scanCategory" name="category" placeholder="Enter category" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scanProduct">Product:</label>
+                            <input type="text" id="scanProduct" name="product" placeholder="Enter product name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scanBrand">Brand:</label>
+                            <input type="text" id="scanBrand" name="brand" placeholder="Enter brand name" required>
+                        </div>
+                        <button id="submit-button" class="btn btn-primary" type="submit">Upload Video</button>
+                    </form>
+
+                    <!-- Start Recording Button -->
+                    <button id="start-recording" class="btn btn-primary">Start Recording</button>
+                </div>
+            </div>
+        </div>
+        
+    
+        <!-- OCR SCAN SECTION -->
+        <div id="ocr" class="content-section">
+            <h1><i class="fas fa-font"></i> OCR Scan Image</h1>
+            <p>Upload an image to extract text using optical character recognition (OCR).</p>
+            
+            <form id="ocrForm" class="upload-form">
+                <div class="file-upload-container">
+                    <div class="file-upload" id="ocrDropArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag and drop your image here or click to browse</p>
+                        <input type="file" id="ocrImageInput" name="image" accept="image/*">
+                        <div class="file-upload-preview" id="ocrFilePreview">
+                            <img id="ocrPreviewImage" src="#" alt="Preview">
+                            <p id="ocrFileName"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="ocrOpenCamera" class="btn btn-secondary">
+                    <i class="fas fa-camera"></i> Take Photo Instead
+                </button>
+
+                <div class="form-group">
+                    <label for="ocrLanguage">Language:</label>
+                    <select id="ocrLanguage" name="language">
+                        <option value="eng" selected>English</option>
+                        <option value="fra">French</option>
+                        <option value="spa">Spanish</option>
+                        <option value="deu">German</option>
+                        <option value="chi_sim">Chinese (Simplified)</option>
+                        <option value="jpn">Japanese</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Extract Text
+                </button>
+            </form>
+
+            <div id="ocrResponseMessage" class="response-message" style="display: none;"></div>
+            
+            <div class="ocr-result-container">
+                <h3>Extracted Text:</h3>
+                <div id="ocrText" class="ocr-text">No text extracted yet. Upload an image to begin.</div>
+                <div id="ocrConfidence" class="ocr-confidence"></div>
+            </div>
+
+            <!-- OCR Camera Container -->
+            <div id="ocrCameraContainer" class="camera-container">
+                <video id="ocrCameraFeed"></video>
+                <button id="ocrCaptureButton" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Capture Photo
+                </button>
+            </div>
+        </div>
+        
+    
+        <!-- BARCODE SCANNER SECTION -->
+        <div id="barcode" class="content-section">
+            <h1><i class="fas fa-barcode"></i> Barcode Scanner</h1>
+            <p>Scan barcodes using your camera or upload an image containing a barcode.</p>
+            
+            <div class="scan-options">
+                <button id="startBarcodeScan" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Start Camera Scan
+                </button>
+                <span style="margin: 0 10px;">or</span>
+                <button id="uploadBarcodeImage" class="btn btn-secondary">
+                    <i class="fas fa-upload"></i> Upload Image
+                </button>
+            </div>
+            
+            <div class="barcode-scan-hint" id="barcodeScanHint">
+                Point your camera at a barcode to scan it automatically
+            </div>
+            
+            <div class="barcode-camera-container">
+                <video id="barcodeScanner" playsinline></video>
+                <div class="barcode-scan-box" id="barcodeScanBox"></div>
+            </div>
+            
+            <input type="file" id="barcodeFileInput" accept="image/*" style="display: none;">
+            
+            <div id="barcodeResponseMessage" class="response-message" style="display: none;"></div>
+            
+            <div class="barcode-result-container" id="barcodeResults" style="display: none;">
+                <h3>Scan Results:</h3>
+                <div class="barcode-result">
+                    <div class="barcode-value" id="barcodeValue">No barcode detected</div>
+                    <div class="barcode-type" id="barcodeType"></div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+    <!-- Shared Camera Capture Modal -->
+    <div id="captureContainer">
+        <video id="cameraFeed"></video>
+        <button id="captureButton" class="btn btn-primary">
+            <i class="fas fa-camera"></i> Capture Photo
+        </button>
+    </div>
+
+    <script>
+        // ==================== COMMON FUNCTIONALITY ====================
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Stop all camera streams when switching sections
+            stopAllCameras();
+        }
+
+        function stopAllCameras() {
+            // Stop upload camera
+            const uploadFeed = document.getElementById('uploadCameraFeed');
+            if (uploadFeed && uploadFeed.srcObject) {
+                uploadFeed.srcObject.getTracks().forEach(track => track.stop());
+                uploadFeed.srcObject = null;
+            }
+            document.getElementById('uploadCameraContainer').style.display = 'none';
+            
+            // Stop verify camera
+            const verifyFeed = document.getElementById('verifyCameraFeed');
+            if (verifyFeed && verifyFeed.srcObject) {
+                verifyFeed.srcObject.getTracks().forEach(track => track.stop());
+                verifyFeed.srcObject = null;
+            }
+            document.getElementById('verifyCameraContainer').style.display = 'none';
+
+            // Stop OCR camera
+             const ocrFeed = document.getElementById('ocrCameraFeed');
+            if (ocrFeed && ocrFeed.srcObject) {
+                ocrFeed.srcObject.getTracks().forEach(track => track.stop());
+                ocrFeed.srcObject = null;
+            }
+            document.getElementById('ocrCameraContainer').style.display = 'none';
+            
+            // Stop barcode scanner
+            const barcodeScanner = document.getElementById('barcodeScanner');
+            if (barcodeScanner && barcodeScanner.srcObject) {
+                barcodeScanner.srcObject.getTracks().forEach(track => track.stop());
+                barcodeScanner.srcObject = null;
+            }
+            document.getElementById('barcodeScanBox').style.display = 'none';
+        
+        }
+
+        // Shared camera functionality
+        let cameraStream = null;
+        const captureContainer = document.getElementById('captureContainer');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const captureButton = document.getElementById('captureButton');
+
+
+        
+        
+        function openCamera(callback) {
+            // First show the capture container
+            captureContainer.style.display = 'flex';
+            
+            // Then proceed with camera initialization
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Camera access is not supported in your browser");
+                captureContainer.style.display = 'none';
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            }).then(stream => {
+                cameraStream = stream;
+                cameraFeed.srcObject = stream;
+
+                cameraFeed.onloadedmetadata = () => {
+                    cameraFeed.play().catch(e => {
+                        console.error("Video play error:", e);
+                        alert("Couldn't start camera preview: " + e.message);
+                        closeCamera();
+                    });
+                };
+
+                // Set up capture button with the callback
+                captureButton.onclick = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = cameraFeed.videoWidth;
+                    canvas.height = cameraFeed.videoHeight;
+                    const context = canvas.getContext('2d');
+                    context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+                    
+                    canvas.toBlob(blob => {
+                        if (blob && typeof callback === 'function') {
+                            callback(blob);
+                        }
+                        closeCamera();
+                    }, 'image/jpeg', 0.9);
+                };
+
+            }).catch(error => {
+                console.error("Camera Error:", error);
+                captureContainer.style.display = 'none';
+                // Error handling as before...
+            });
+        }
+
+        // Close camera function
+        function closeCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            captureContainer.style.display = 'none';
+        }
+
+        // Close camera when clicking outside
+        captureContainer.addEventListener('click', e => {
+            if (e.target === captureContainer) {
+                closeCamera();
+            }
+        });
+
+         // ==================== UPLOAD SNAPSHOT FUNCTIONALITY ====================
+        const uploadDropArea = document.getElementById('uploadDropArea');
+        const uploadImageInput = document.getElementById('uploadImageInput');
+        const uploadPreviewImage = document.getElementById('uploadPreviewImage');
+        const uploadFileName = document.getElementById('uploadFileName');
+        const uploadFilePreview = document.getElementById('uploadFilePreview');
+        const uploadOpenCamera = document.getElementById('uploadOpenCamera');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadResponseMessage = document.getElementById('uploadResponseMessage');
+        const uploadCameraContainer = document.getElementById('uploadCameraContainer');
+        const uploadCameraFeed = document.getElementById('uploadCameraFeed');
+        const uploadCaptureButton = document.getElementById('uploadCaptureButton');
+        let uploadCapturedBlob = null;
+
+        // Setup drag and drop for upload
+        setupFileUpload(uploadDropArea, uploadImageInput, uploadPreviewImage, uploadFileName, uploadFilePreview);
+
+        // Open Camera for Upload
+        uploadOpenCamera.addEventListener('click', () => {
+            uploadCameraContainer.style.display = 'flex';
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showResponse(uploadResponseMessage, "Camera access is not supported in your browser", 'error');
+                uploadCameraContainer.style.display = 'none';
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            }).then(stream => {
+                uploadCameraFeed.srcObject = stream;
+
+                uploadCameraFeed.onloadedmetadata = () => {
+                    uploadCameraFeed.play().catch(e => {
+                        console.error("Video play error:", e);
+                        showResponse(uploadResponseMessage, "Couldn't start camera preview: " + e.message, 'error');
+                        closeUploadCamera();
+                    });
+                };
+            }).catch(error => {
+                console.error("Camera Error:", error);
+                uploadCameraContainer.style.display = 'none';
+                showResponse(uploadResponseMessage, `Error accessing camera: ${error.message}`, 'error');
+            });
+        });
+
+        // Capture photo for upload
+        uploadCaptureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = uploadCameraFeed.videoWidth;
+            canvas.height = uploadCameraFeed.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(uploadCameraFeed, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob(blob => {
+                if (blob) {
+                    uploadCapturedBlob = blob;
+                    uploadPreviewImage.src = URL.createObjectURL(blob);
+                    uploadFileName.textContent = 'captured_image.jpg';
+                    uploadFilePreview.style.display = 'block';
+                    showResponse(uploadResponseMessage, 'Photo captured successfully!', 'success');
+                }
+                closeUploadCamera();
+            }, 'image/jpeg', 0.9);
+        });
+
+        // Close upload camera
+        function closeUploadCamera() {
+            if (uploadCameraFeed.srcObject) {
+                uploadCameraFeed.srcObject.getTracks().forEach(track => track.stop());
+            }
+            uploadCameraContainer.style.display = 'none';
+        }
+
+        // Close upload camera when clicking outside
+        uploadCameraContainer.addEventListener('click', e => {
+            if (e.target === uploadCameraContainer) {
+                closeUploadCamera();
+            }
+        });
+
+        // Submit Upload Form
+        uploadForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            if (uploadCapturedBlob) {
+                formData.set('image', uploadCapturedBlob, 'captured_image.jpg');
+            } else if (uploadImageInput.files.length === 0) {
+                showResponse(uploadResponseMessage, 'Please upload or capture an image.', 'error');
+                return;
+            }
+
+            // Validate required fields
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (!username || !password) {
+                showResponse(uploadResponseMessage, 'Username and password are required.', 'error');
+                return;
+            }
+
+            try {
+                // Make API call to your endpoint
+                const response = await fetch('https://liveuxstoryboard.com/logo-image', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showResponse(uploadResponseMessage, data.message || 'Image uploaded successfully!', 'success');
+                
+                // Reset form
+                uploadForm.reset();
+                uploadCapturedBlob = null;
+                uploadFilePreview.style.display = 'none';
+                uploadImageInput.value = '';
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showResponse(uploadResponseMessage, `Error: ${error.message}`, 'error');
+            }
+        });
+
+        // ==================== SEARCH & VERIFY FUNCTIONALITY ====================
+        const verifyDropArea = document.getElementById('verifyDropArea');
+        const verifyImageInput = document.getElementById('verifyImageInput');
+        const verifyPreviewImage = document.getElementById('verifyPreviewImage');
+        const verifyFileName = document.getElementById('verifyFileName');
+        const verifyFilePreview = document.getElementById('verifyFilePreview');
+        const verifyOpenCamera = document.getElementById('verifyOpenCamera');
+        const verifyForm = document.getElementById('verifyForm');
+        const verifyResponseMessage = document.getElementById('verifyResponseMessage');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const verifyCameraContainer = document.getElementById('verifyCameraContainer');
+        const verifyCameraFeed = document.getElementById('verifyCameraFeed');
+        const verifyCaptureButton = document.getElementById('verifyCaptureButton');
+        let verifyCapturedBlob = null;
+
+        // Setup drag and drop for verify
+        setupFileUpload(verifyDropArea, verifyImageInput, verifyPreviewImage, verifyFileName, verifyFilePreview);
+
+        // Open Camera for Verify
+        verifyOpenCamera.addEventListener('click', () => {
+            verifyCameraContainer.style.display = 'flex';
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showResponse(verifyResponseMessage, "Camera access is not supported in your browser", 'error');
+                verifyCameraContainer.style.display = 'none';
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            }).then(stream => {
+                verifyCameraFeed.srcObject = stream;
+
+                verifyCameraFeed.onloadedmetadata = () => {
+                    verifyCameraFeed.play().catch(e => {
+                        console.error("Video play error:", e);
+                        showResponse(verifyResponseMessage, "Couldn't start camera preview: " + e.message, 'error');
+                        closeVerifyCamera();
+                    });
+                };
+            }).catch(error => {
+                console.error("Camera Error:", error);
+                verifyCameraContainer.style.display = 'none';
+                showResponse(verifyResponseMessage, `Error accessing camera: ${error.message}`, 'error');
+            });
+        });
+
+        // Capture photo for verify
+        verifyCaptureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = verifyCameraFeed.videoWidth;
+            canvas.height = verifyCameraFeed.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(verifyCameraFeed, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob(blob => {
+                if (blob) {
+                    verifyCapturedBlob = blob;
+                    verifyPreviewImage.src = URL.createObjectURL(blob);
+                    verifyFileName.textContent = 'captured_image.jpg';
+                    verifyFilePreview.style.display = 'block';
+                    showResponse(verifyResponseMessage, 'Photo captured successfully!', 'success');
+                }
+                closeVerifyCamera();
+            }, 'image/jpeg', 0.9);
+        });
+
+        // Close verify camera
+        function closeVerifyCamera() {
+            if (verifyCameraFeed.srcObject) {
+                verifyCameraFeed.srcObject.getTracks().forEach(track => track.stop());
+            }
+            verifyCameraContainer.style.display = 'none';
+        }
+
+        // Close verify camera when clicking outside
+        verifyCameraContainer.addEventListener('click', e => {
+            if (e.target === verifyCameraContainer) {
+                closeVerifyCamera();
+            }
+        });
+
+        // Submit Verify Form
+        verifyForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            
+            if (verifyCapturedBlob) {
+                formData.append('file', verifyCapturedBlob, 'captured_image.jpg');
+            } else if (verifyImageInput.files.length > 0) {
+                formData.append('file', verifyImageInput.files[0]);
+            } else {
+                showResponse(verifyResponseMessage, 'Please upload or capture an image.', 'error');
+                return;
+            }
+
+
+            try {
+                // Call your verification API endpoint
+                const response = await fetch('https://liveuxstoryboard.com/search', { 
+                    method: 'POST', 
+                    body: formData 
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Display results from API
+                displayResults(data);
+                showResponse(verifyResponseMessage, data.message || 'Verification successful!', 'success');
+                
+            } catch (error) {
+                console.error('Verification error:', error);
+                showResponse(verifyResponseMessage, `Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Display verification results
+        function displayResults(data) {
+            resultsContainer.innerHTML = '';
+            
+            if (data.score && data.score.length > 0) {
+                data.score.forEach((item, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.innerHTML = `
+                        <img src="${item.image_path}" alt="Match ${index + 1}" class="result-image">
+                        <p class="result-score">Match Score: ${item.score.toFixed(2)}%</p>
+                    `;
+                    resultsContainer.appendChild(resultItem);
+                });
+            } else {
+                resultsContainer.innerHTML = '<p>No matching results found.</p>';
+            }
+        }
+
+        // Filter Button Logic
+        document.getElementById('filterButton').addEventListener('click', async () => {
+            const filter1 = document.getElementById('filter1').value || null;
+            const filter2 = document.getElementById('filter2').value || null;
+            const filter3 = document.getElementById('filter3').value || null;
+            const period = document.getElementById('period').value || null;
+
+            const fields = [filter1, filter2, filter3].filter(field => field !== null && field !== "");
+
+            const requestBody = {
+                database_details: {
+                    database_name: "datacube",
+                    collection: "features",
+                    database: "logoscan_test",
+                    fields: fields.length > 0 ? fields : ["score"]
+                },
+                distribution_input: {
+                    normal: 1,
+                    poisson: 0,
+                    binomial: 0,
+                    bernoulli: 0
+                },
+                number_of_variable: 1,
+                stages: [],
+                time_input: {
+                    column_name: "dowell_time.current_time",
+                    period: period || "last_1_day",
+                    time_type_in_db: "iso"
+                }
+            };
+
+            try {
+                // Show loading state
+                verifyResponseMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading results...';
+                verifyResponseMessage.className = 'response-message';
+                
+                const response = await fetch('https://100032.pythonanywhere.com/api/targeted_population/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status} status`);
+                }
+
+                const data = await response.json();
+                
+                // Clear previous results
+                resultsContainer.innerHTML = '';
+                
+                // Create formatted display of the response
+                const pre = document.createElement('pre');
+                pre.style.whiteSpace = 'pre-wrap';
+                pre.style.padding = '15px';
+                pre.style.background = '#f8f8f8';
+                pre.style.borderRadius = '5px';
+                pre.style.color = 'black';
+                pre.textContent = JSON.stringify(data, null, 2);
+                
+                // Add to results container
+                resultsContainer.appendChild(pre);
+                
+                // Show success message
+                verifyResponseMessage.innerHTML = '<i class="fas fa-check-circle"></i> Results loaded successfully';
+                verifyResponseMessage.className = 'response-message success-message';
+                
+            } catch (error) {
+                console.error('Filter error:', error);
+                verifyResponseMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+                verifyResponseMessage.className = 'response-message error-message';
+            }
+        });
+
+
+        // ==================== SCAN IMAGE FUNCTIONALITY ====================
+        const videoElement = document.getElementById("video");
+        const startRecordingButton = document.getElementById("start-recording");
+        const scanUploadForm = document.getElementById("scanUploadForm");
+        const canvas = document.getElementById("canvas");
+        const canvasContext = canvas.getContext("2d");
+        const overlay = document.getElementById("overlay");
+        const shapeStyleSelect = document.getElementById("shape-style");
+        const loginForm = document.getElementById("loginForm");
+        const loginContainer = document.getElementById("loginContainer");
+        const masterContainer = document.getElementById("masterContainer");
+        const loginMessage = document.getElementById("loginMessage");
+        const scanResponseMessage = document.getElementById("scanResponseMessage");
+        const cameraContainer = document.getElementById("camera-container");
+        let mediaRecorder;
+        let recordedChunks = [];
+        let percentComplete = 0;
+
+        // Initialize containers
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('masterContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+        });
+
+        // Login functionality
+        loginForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const username = document.getElementById("scanUsername").value;
+            const password = document.getElementById("scanPassword").value;
+
+            // Show loading state
+            loginMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            loginMessage.className = 'response-message';
+            loginMessage.style.display = 'block';
+
+            try {
+                // Make API call to authenticate
+                const response = await fetch('/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    // If HTTP status is not 200-299
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Authentication failed');
+                }
+
+                const data = await response.json();
+
+                if (data.authenticated) {
+                    // Successful login
+                    loginContainer.style.display = "none";
+                    masterContainer.style.display = "block";
+                    
+                    // Clear password field for security
+                    document.getElementById("scanPassword").value = "";
+                } else {
+                    throw new Error('Invalid credentials');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                loginMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'Login failed'}`;
+                loginMessage.className = 'response-message error-message';
+                
+                // Add shake animation to form for visual feedback
+                loginForm.classList.add('shake');
+                setTimeout(() => loginForm.classList.remove('shake'), 500);
+            }
+        });
+
+        // Function to show directional overlays
+        function showOverlay() {
+            const directions = ["Up", "Down", "Left", "Right"];
+            let index = 0;
+
+            const interval = setInterval(() => {
+                overlay.textContent = directions[index];
+                index++;
+
+                if (index >= directions.length) {
+                    clearInterval(interval);
+                    overlay.textContent = "";
+                }
+            }, 2000);
+        }
+
+        // Update canvas shape based on selection
+        function updateCanvasShape(shapeStyle) {
+            const width = 400;
+            const height = shapeStyle === "rectangle" ? 250 : 400;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            if (shapeStyle === "circle") {
+                canvasContext.clearRect(0, 0, width, height);
+                canvasContext.beginPath();
+                canvasContext.arc(width / 2, height / 2, width / 2, 0, 2 * Math.PI);
+                canvasContext.clip();
+            } else {
+                canvasContext.clearRect(0, 0, width, height);
+            }
+        }
+
+        // Update camera container style
+        function updateShapeStyle() {
+            const shapeStyle = shapeStyleSelect.value;
+            
+            // Reset styles
+            cameraContainer.className = 'camera-view';
+            
+            // Apply selected shape
+            if (shapeStyle === "circle") {
+                cameraContainer.classList.add('circle');
+            } else if (shapeStyle === "rectangle") {
+                cameraContainer.classList.add('rectangle');
+            }
+            
+            updateCanvasShape(shapeStyle);
+        }
+
+        // Open camera
+        async function openCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',  // Force rear camera
+                        width: { ideal: 400 },
+                        height: { ideal: 400 }
+                    } 
+                });
+                videoElement.srcObject = stream;
+                return stream;
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+                scanResponseMessage.innerHTML = 
+                    '<i class="fas fa-exclamation-circle"></i> Error accessing camera. Please check permissions.';
+                scanResponseMessage.className = 'response-message error-message';
+                return null;
+            }
+        }
+
+        // Start recording
+        async function startRecording() {
+            const stream = await openCamera();
+            if (!stream) return;
+
+            showOverlay();
+            updateShapeStyle();
+
+            const drawInterval = setInterval(() => {
+                canvasContext.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            }, 1000 / 60);
+
+            recordedChunks = [];
+            const canvasStream = canvas.captureStream(60);
+
+            mediaRecorder = new MediaRecorder(canvasStream);
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                clearInterval(drawInterval);
+                const blob = new Blob(recordedChunks, { type: "video/webm" });
+                scanUploadForm.style.display = "flex";
+                scanUploadForm.onsubmit = (e) => uploadVideo(e, blob);
+                
+                // Stop all video tracks
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            
+            // Automatically stop after 10 seconds
+            setTimeout(() => {
+                if (mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+            }, 10000);
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            percentComplete += 10;
+            return percentComplete;
+        }
+
+        // Upload video
+        async function uploadVideo(event, videoBlob) {
+            event.preventDefault();
+            const formData = new FormData(scanUploadForm);
+            const file = new File([videoBlob], "recorded_video.mp4", { type: "video/mp4" });
+            formData.append("video", file);
+
+            const progressContainer = document.getElementById("progress-container");
+            const progressBar = document.getElementById("progress-bar");
+            const progressPercentage = document.getElementById("progress-percentage");
+            const responseMessage = document.getElementById('scanResponseMessage');
+
+            progressContainer.style.display = "block";
+            progressBar.style.width = "0%";
+            progressPercentage.textContent = "0%";
+            responseMessage.innerHTML = "";
+            responseMessage.className = "response-message";
+
+            // Create XHR object
+            const xhr = new XMLHttpRequest();
+            
+            // Configure progress tracking
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = `${percentComplete}%`;
+                    progressPercentage.textContent = `${percentComplete}%`;
+                }
+            });
+
+            // Handle response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        responseMessage.innerHTML = '<i class="fas fa-check-circle"></i> Upload successful!';
+                        responseMessage.className = 'response-message success-message';
+                        
+                        // Reset form after successful upload
+                        setTimeout(() => {
+                            scanUploadForm.reset();
+                            scanUploadForm.style.display = "none";
+                            progressContainer.style.display = "none";
+                        }, 2000);
+                    } else {
+                        responseMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${xhr.statusText}`;
+                        responseMessage.className = 'response-message error-message';
+                        progressContainer.style.display = "none";
+                    }
+                }
+            };
+
+            // Open and send request
+            xhr.open("POST", "https://liveuxstoryboard.com/upload_video/", true);
+            xhr.send(formData);
+        }
+
+        // Event listeners
+        startRecordingButton.addEventListener("click", startRecording);
+        shapeStyleSelect.addEventListener("change", updateShapeStyle);
+
+        // Initialize shape
+        updateShapeStyle();
+
+
+        // ==================== OCR SCAN FUNCTIONALITY ====================
+        const ocrDropArea = document.getElementById('ocrDropArea');
+        const ocrImageInput = document.getElementById('ocrImageInput');
+        const ocrPreviewImage = document.getElementById('ocrPreviewImage');
+        const ocrFileName = document.getElementById('ocrFileName');
+        const ocrFilePreview = document.getElementById('ocrFilePreview');
+        const ocrOpenCamera = document.getElementById('ocrOpenCamera');
+        const ocrForm = document.getElementById('ocrForm');
+        const ocrResponseMessage = document.getElementById('ocrResponseMessage');
+        const ocrText = document.getElementById('ocrText');
+        const ocrConfidence = document.getElementById('ocrConfidence');
+        const ocrCameraContainer = document.getElementById('ocrCameraContainer');
+        const ocrCameraFeed = document.getElementById('ocrCameraFeed');
+        const ocrCaptureButton = document.getElementById('ocrCaptureButton');
+        let ocrCapturedBlob = null;
+
+        // Setup drag and drop for OCR
+        setupFileUpload(ocrDropArea, ocrImageInput, ocrPreviewImage, ocrFileName, ocrFilePreview);
+
+        // Open Camera for OCR
+        ocrOpenCamera.addEventListener('click', () => {
+            ocrCameraContainer.style.display = 'flex';
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showResponse(ocrResponseMessage, "Camera access is not supported in your browser", 'error');
+                ocrCameraContainer.style.display = 'none';
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            }).then(stream => {
+                ocrCameraFeed.srcObject = stream;
+
+                ocrCameraFeed.onloadedmetadata = () => {
+                    ocrCameraFeed.play().catch(e => {
+                        console.error("Video play error:", e);
+                        showResponse(ocrResponseMessage, "Couldn't start camera preview: " + e.message, 'error');
+                        closeOcrCamera();
+                    });
+                };
+            }).catch(error => {
+                console.error("Camera Error:", error);
+                ocrCameraContainer.style.display = 'none';
+                showResponse(ocrResponseMessage, `Error accessing camera: ${error.message}`, 'error');
+            });
+        });
+
+        // Capture photo for OCR
+        ocrCaptureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = ocrCameraFeed.videoWidth;
+            canvas.height = ocrCameraFeed.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(ocrCameraFeed, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob(blob => {
+                if (blob) {
+                    ocrCapturedBlob = blob;
+                    ocrPreviewImage.src = URL.createObjectURL(blob);
+                    ocrFileName.textContent = 'captured_image.jpg';
+                    ocrFilePreview.style.display = 'block';
+                    showResponse(ocrResponseMessage, 'Photo captured successfully!', 'success');
+                }
+                closeOcrCamera();
+            }, 'image/jpeg', 0.9);
+        });
+
+        // Close OCR camera
+        function closeOcrCamera() {
+            if (ocrCameraFeed.srcObject) {
+                ocrCameraFeed.srcObject.getTracks().forEach(track => track.stop());
+            }
+            ocrCameraContainer.style.display = 'none';
+        }
+
+        // Close OCR camera when clicking outside
+        ocrCameraContainer.addEventListener('click', e => {
+            if (e.target === ocrCameraContainer) {
+                closeOcrCamera();
+            }
+        });
+
+        // Submit OCR Form
+        ocrForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            const language = document.getElementById('ocrLanguage').value;
+            
+            if (ocrCapturedBlob) {
+                formData.append('image', ocrCapturedBlob, 'captured_image.jpg');
+            } else if (ocrImageInput.files.length > 0) {
+                formData.append('image', ocrImageInput.files[0]);
+            } else {
+                showResponse(ocrResponseMessage, 'Please upload or capture an image.', 'error');
+                return;
+            }
+            
+            formData.append('language', language);
+
+            // Show loading state
+            ocrText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing image...';
+            ocrConfidence.textContent = '';
+            ocrResponseMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting text...';
+            ocrResponseMessage.className = 'response-message';
+            ocrResponseMessage.style.display = 'block';
+
+            try {
+                // Send the image to the OCR API
+                const ocrResponse = await fetch('https://liveuxstoryboard.com/ocr-scan', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (!ocrResponse.ok) {
+                    throw new Error(`HTTP error! status: ${ocrResponse.status}`);
+                }
+                
+                const ocrData = await ocrResponse.json();
+
+                // Show OCR result
+                if (ocrData.ocr_text) {
+                    ocrText.innerHTML = `<strong>Extracted Text:</strong><br>${ocrData.ocr_text}`;
+                    
+                    if (ocrData.confidence) {
+                        ocrConfidence.textContent = `Confidence: ${ocrData.confidence.toFixed(2)}%`;
+                    }
+                    
+                    showResponse(ocrResponseMessage, 'Text extracted successfully!', 'success');
+                } else {
+                    ocrText.textContent = 'No text could be extracted from this image.';
+                    showResponse(ocrResponseMessage, 'No text found in the image.', 'error');
+                }
+            } catch (error) {
+                console.error('OCR error:', error);
+                ocrText.textContent = `Error: ${error.message}`;
+                showResponse(ocrResponseMessage, `Error: ${error.message}`, 'error');
+            }
+        });
+
+
+
+        // ==================== BARCODE SCANNER FUNCTIONALITY ====================
+        const startBarcodeScan = document.getElementById('startBarcodeScan');
+        const uploadBarcodeImage = document.getElementById('uploadBarcodeImage');
+        const barcodeScanner = document.getElementById('barcodeScanner');
+        const barcodeScanBox = document.getElementById('barcodeScanBox');
+        const barcodeScanHint = document.getElementById('barcodeScanHint');
+        const barcodeFileInput = document.getElementById('barcodeFileInput');
+        const barcodeResponseMessage = document.getElementById('barcodeResponseMessage');
+        const barcodeResults = document.getElementById('barcodeResults');
+        const barcodeValue = document.getElementById('barcodeValue');
+        const barcodeType = document.getElementById('barcodeType');
+
+        let barcodeStream = null;
+        let scanInterval = null;
+        let lastScanTime = 0;
+        const scanCooldown = 2000; // 2 seconds between scans
+
+        // Start camera scan
+        startBarcodeScan.addEventListener('click', async () => {
+            try {
+                // Hide upload option and show camera
+                barcodeScanHint.style.display = 'block';
+                barcodeResults.style.display = 'none';
+                barcodeFileInput.style.display = 'none';
+                
+                // Get camera stream
+                barcodeStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+                
+                barcodeScanner.srcObject = barcodeStream;
+                barcodeScanner.style.display = 'block';
+                barcodeScanBox.style.display = 'block';
+                
+                // Start scanning periodically
+                scanInterval = setInterval(captureAndScanBarcode, 1000);
+                
+                // Show success message
+                showResponse(barcodeResponseMessage, 'Camera started successfully. Point at a barcode to scan.', 'success');
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                showResponse(barcodeResponseMessage, `Error accessing camera: ${error.message}`, 'error');
+            }
+        });
+
+        // Stop camera scan
+        function stopBarcodeScan() {
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+            
+            if (barcodeStream) {
+                barcodeStream.getTracks().forEach(track => track.stop());
+                barcodeStream = null;
+            }
+            
+            barcodeScanner.style.display = 'none';
+            barcodeScanBox.style.display = 'none';
+        }
+
+        // Validate image file
+        function validateImageFile(file) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (!validTypes.includes(file.type)) {
+                return { valid: false, error: 'Only JPEG and PNG images are allowed' };
+            }
+            
+            if (file.size > maxSize) {
+                return { valid: false, error: 'Image size must be less than 5MB' };
+            }
+            
+            return { valid: true };
+        }
+
+        // Capture frame and scan for barcode
+        async function captureAndScanBarcode() {
+            // Skip if we're in cooldown period
+            if (Date.now() - lastScanTime < scanCooldown) return;
+            
+            try {
+                // Create canvas to capture frame
+                const canvas = document.createElement('canvas');
+                const video = barcodeScanner;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw video frame to canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Convert to blob for API
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('file', blob, 'barcode_scan.jpg');
+                    
+                    try {
+                        const response = await fetch('https://liveuxstoryboard.com/scan-barcode/', {
+                            method: 'POST',
+                            body: formData,
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.detail || `Server responded with status ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        if (data.barcodes && data.barcodes.length > 0) {
+                            displayBarcodeResult(data);
+                        }
+                        
+                    } catch (error) {
+                        console.error('Scan error:', error);
+                        // Don't show error for every failed attempt (might just be no barcode)
+                    }
+                }, 'image/jpeg', 0.8);
+            } catch (error) {
+                console.error('Capture error:', error);
+            }
+        }
+
+        // Upload image for barcode scanning
+        uploadBarcodeImage.addEventListener('click', () => {
+            barcodeFileInput.click();
+        });
+
+        barcodeFileInput.addEventListener('change', async () => {
+            if (barcodeFileInput.files.length > 0) {
+                stopBarcodeScan(); // Stop camera if running
+                
+                const file = barcodeFileInput.files[0];
+                const validation = validateImageFile(file);
+                
+                if (!validation.valid) {
+                    showResponse(barcodeResponseMessage, validation.error, 'error');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // Show loading state
+                barcodeResults.style.display = 'block';
+                barcodeValue.textContent = 'Processing...';
+                barcodeType.textContent = '';
+                showResponse(barcodeResponseMessage, 'Scanning image for barcodes...', '');
+                
+                try {
+                    const response = await fetch('https://liveuxstoryboard.com/scan-barcode/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || `Server responded with status ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    displayBarcodeResult(data);
+                    showResponse(barcodeResponseMessage, 'Barcode scanned successfully!', 'success');
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    barcodeValue.textContent = 'Scan failed';
+                    barcodeType.textContent = '';
+                    
+                    if (error.message.includes('No barcode found')) {
+                        showResponse(barcodeResponseMessage, 'No barcode found in the image', 'error');
+                    } else {
+                        showResponse(barcodeResponseMessage, `Error: ${error.message}`, 'error');
+                    }
+                }
+            }
+        });
+
+        // Display barcode results
+        function displayBarcodeResult(data) {
+            lastScanTime = Date.now();
+            
+            if (data.barcodes && data.barcodes.length > 0) {
+                const barcode = data.barcodes[0]; // Get first barcode
+                barcodeValue.textContent = barcode.data || 'No value detected';
+                barcodeType.textContent = `Type: ${barcode.type || 'unknown'}`;
+                
+                // Optional: Play success sound
+                const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
+                audio.volume = 0.3;
+                audio.play().catch(e => console.log('Audio play failed:', e));
+            } else {
+                barcodeValue.textContent = 'No barcode detected';
+                barcodeType.textContent = '';
+            }
+            
+            barcodeResults.style.display = 'block';
+        }
+
+        // Update showSection function to stop scanner when switching sections
+        function showSection(sectionId) {
+            // Stop any active barcode scanning
+            stopBarcodeScan();
+            
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Clean up when page is closed
+        window.addEventListener('beforeunload', () => {
+            stopBarcodeScan();
+        });
+        
+
+        // ==================== HELPER FUNCTIONS ====================
+        function setupFileUpload(dropArea, fileInput, previewImage, fileNameElement, previewContainer) {
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop area
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => {
+                    dropArea.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
+                    dropArea.style.borderColor = '#3e8e41';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => {
+                    dropArea.style.backgroundColor = 'rgba(76, 175, 80, 0.05)';
+                    dropArea.style.borderColor = '#4caf50';
+                }, false);
+            });
+
+            // Handle dropped files
+            dropArea.addEventListener('drop', e => {
+                const dt = e.dataTransfer;
+                handleFiles(dt.files, fileInput, previewImage, fileNameElement, previewContainer);
+            }, false);
+
+            // Handle selected files
+            fileInput.addEventListener('change', () => {
+                handleFiles(fileInput.files, fileInput, previewImage, fileNameElement, previewContainer);
+            });
+        }
+
+        function handleFiles(files, fileInput, previewImage, fileNameElement, previewContainer) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        previewImage.src = e.target.result;
+                        fileNameElement.textContent = file.name;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please select an image file.');
+                }
+            }
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function showResponse(element, message, type) {
+            element.textContent = message;
+            element.className = `response-message ${type}-message`;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 5000);
+        }
+
+
+        
+    </script>
 </body>
 </html>

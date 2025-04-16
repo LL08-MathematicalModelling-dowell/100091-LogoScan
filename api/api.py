@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form
 from ..config.db import database
-from ..models.responses import LogoUploadResponse, SearchResponse, ScoreEntry, AuthResponse, Upload_Response, OCR_Response
+from ..models.responses import LogoUploadResponse, SearchResponse, ScoreEntry, AuthResponse, Upload_Response
 from ..models import FeatureExtractor
 from fastapi.responses import JSONResponse
 import os
@@ -17,7 +17,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
 import requests
 import json
-import easyocr
+
 
 
 # Extract the current time for dowell_time
@@ -26,7 +26,7 @@ dowell_time = {
 }
 
 
-router = APIRouter()
+router = APIRouter(tags = [ "Logo Scan"])
 fs = gridfs.GridFS(database)
 fe = FeatureExtractor()
 present_dir = os.path.dirname(os.path.abspath(__file__))
@@ -157,7 +157,8 @@ async def upload_logo_image(
             'brand': brand,
             'flag': flag,
             'event_id': get_event_id(),
-            'dowell_time': dowell_time  # Add dowell_time field
+            'dowell_time': dowell_time,  # Add dowell_time field
+            'score': 1
         }
         database.features.insert_one(data)
 
@@ -332,7 +333,9 @@ async def upload_video(
                 'brand': brand,
                 'flag': "video",  # Example flag, replace if necessary
                 'event_id': get_event_id(),
-                'dowell_time': dowell_time  # Add dowell_time field
+                'dowell_time': dowell_time,  # Add dowell_time field
+                'score': 1
+                
             }
             documents.append(document)
 
@@ -417,26 +420,4 @@ async def ocr_from_image(image: UploadFile = File(...),
             message="Features already exist for this image. Starting OCR processing..."
             
         )
-    
-
-@router.post("/ocr-scan", response_model=OCR_Response)
-async def ocr_from_image(image: UploadFile = File(...)):
-    
-
-    upload_image_path = f'{present_dir}/upload_image'
-    os.makedirs(upload_image_path, exist_ok=True)
-    image_path = os.path.join(upload_image_path, "admin_upload.jpg")
-
-    with open(image_path, 'wb') as f:
-        contents = await image.read()
-        f.write(contents)
-
-    # Perform OCR using EasyOCR
-    reader = easyocr.Reader(['en'])  # Use English for OCR
-    ocr_result = reader.readtext(image_path, detail=0)  # Extract text without details
-    extracted_text = " ".join(ocr_result)  # Combine extracted text into a single string
-
-    return OCR_Response(
-        ocr_text=extracted_text  # Return OCR text in the response
-    )
                 

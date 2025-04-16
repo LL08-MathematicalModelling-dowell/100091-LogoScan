@@ -3,7 +3,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
 body {
@@ -19,16 +19,16 @@ body {
 
 .container {
     text-align: center;
-    padding: 20px;
+    padding: 30px;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     max-width: 600px;
     width: 90%;
 }
 
 h1, h2 {
-    color: #4a90e2;
+    color: #2ecc71; /* Green theme */
     margin-bottom: 20px;
 }
 
@@ -43,24 +43,29 @@ p {
     padding: 12px 24px;
     margin: 10px;
     color: #fff;
-    background-color: #4a90e2;
+    background-color: #2ecc71; /* Green theme */
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     text-decoration: none;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .button:hover {
-    background-color: #357abd;
+    background-color: #27ae60; /* Darker green */
+    transform: translateY(-2px);
+}
+
+.button:active {
+    transform: translateY(0);
 }
 
 /* Form styling */
 form {
     display: flex;
-    flex-direction: column; /* Align items vertically */
-    gap: 15px; /* Space between form elements */
+    flex-direction: column;
+    gap: 15px;
     margin: 20px 0;
     padding: 20px;
     background: #fff;
@@ -70,6 +75,7 @@ form {
 
 label {
     font-weight: bold;
+    color: #333;
 }
 
 input[type="file"],
@@ -80,34 +86,37 @@ input[type="password"] {
     margin-top: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 1rem;
 }
 
 button[type="submit"] {
     width: 100%;
-    padding: 10px;
-    background-color: #4a90e2;
+    padding: 12px;
+    background-color: #2ecc71; /* Green theme */
     color: white;
     font-size: 1rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 button[type="submit"]:hover {
-    background-color: #357abd;
+    background-color: #27ae60; /* Darker green */
 }
 
 /* Search results styling */
 #searchResults div {
-    background: #eef;
+    background: #e9f7ef; /* Light green background */
     padding: 10px;
     margin: 10px 0;
     border-radius: 4px;
+    border: 1px solid #d4efdf; /* Light green border */
 }
 
 #responseMessage, #responseMessage1 {
     margin-top: 15px;
     padding: 10px;
     font-weight: bold;
+    color: #2ecc71; /* Green theme */
 }
