@@ -290,7 +290,7 @@
             try {
                 showLoader('uploadLoader', 'uploadStatus');
 
-                const uploadResponse = await fetch('http://localhost:8000/Upload_Video', {
+                const uploadResponse = await fetch('https://liveuxstoryboard.com/Upload_Video', {
                     method: 'POST',
                     body: formData
                 });
@@ -339,7 +339,7 @@
             try {
                 showLoader('detectionLoader', 'detectionStatus');
 
-                const response = await fetch(`http://localhost:8000/Detect_Frames/${currentVideoId}`, {
+                const response = await fetch(`https://liveuxstoryboard.com/Detect_Frames/${currentVideoId}`, {
                     method: 'POST'
                 });
 
@@ -386,7 +386,7 @@
 
             try {
                 const frameNum = parseInt(frameKey.replace('frame', ''));
-                const response = await fetch(`http://localhost:8000/frame_with_boxes/${currentVideoId}/${frameNum}`);
+                const response = await fetch(`https://liveuxstoryboard.com/frame_with_boxes/${currentVideoId}/${frameNum}`);
                 if (!response.ok) {
                     throw new Error(`Frame load failed! Status: ${response.status}`);
                 }

@@ -22,7 +22,7 @@ fs = GridFS(database)
 YOLO_YAML = 'data/coco.yaml' 
 YOLO_WEIGHTS = 'weights/yolov6s.pt'
 IMG_SIZE = 640
-DEVICE = '0'  # Change to '0' if you want to use GPU
+DEVICE = 'cpu'  
 
 @router.post("/Detect_Frames/{video_id}")
 async def detect_on_frames(video_id: str):
