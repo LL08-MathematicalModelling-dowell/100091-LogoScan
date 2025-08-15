@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Processing Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+        /* Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4f46e5;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 5vh;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .frame-info {
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+                /* Add new styles for class filter */
+        .class-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .class-filter-btn {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid #d1d5db;
+            background-color: #f3f4f6;
+            transition: all 0.2s;
+        }
+        .class-filter-btn:hover {
+            background-color: #e5e7eb;
+        }
+        .class-filter-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .class-filter-btn.all-btn {
+            background-color: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+               /* Add new styles for pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover {
+            background-color: #e5e7eb;
+        }
+        .page-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+    <!-- Modal for enlarged frame view -->
+    <div id="frameModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="modalFrameInfo" class="frame-info"></div>
+    </div>
+
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-indigo-700 text-white p-6">
+            <h1 class="text-2xl sm:text-3xl font-bold">Video Processing Dashboard</h1>
+            <p class="text-indigo-200">Upload, analyze, and detect objects in videos</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6">
+            <!-- Upload Section -->
+            <div class="mb-8 bg-indigo-50 rounded-xl p-6 animate-fadeIn">
+                <h2 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-4">Upload Your Video</h2>
+                
+                <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
+                    <input type="file" id="videoFile" accept="video/*" class="file:mr-4 file:py-3 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200 w-full sm:w-auto">
+                    <div class="flex gap-2">
+                        <button onclick="uploadAndProcessVideo()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-all">
+                            Upload & Process
+                        </button>
+                        <button onclick="runObjectDetection()" id="detectBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-all hidden">
+                            Run Object Detection
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Video Preview -->
+                <div id="videoPreview" class="hidden mb-6 animate-fadeIn">
+                    <h3 class="text-lg font-semibold text-indigo-600 mb-3">Video Preview</h3>
+                    <video id="videoPlayer" controls class="w-full h-auto rounded-lg border-2 border-indigo-200 max-h-80"></video>
+                </div>
+
+                <!-- Loaders -->
+                <div id="uploadLoader" class="hidden items-center gap-2 mb-4">
+                    <div class="spinner"></div>
+                    <span class="text-indigo-700">Processing video...</span>
+                </div>
+                
+                <div id="detectLoader" class="hidden items-center gap-2 mb-4">
+                    <div class="spinner"></div>
+                    <span class="text-green-700">Running object detection...</span>
+                </div>
+                
+                <!-- Status Messages -->
+                <div id="uploadStatus" class="p-4 rounded-lg hidden mb-6"></div>
+                <div id="detectStatus" class="p-4 rounded-lg hidden mb-6"></div>
+
+                <!-- Video Info -->
+                <div id="videoInfo" class="hidden animate-fadeIn">
+                    <h3 class="text-lg sm:text-xl font-semibold text-indigo-600 mb-4">Processing Results</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                        <p><span class="font-medium">Filename:</span> <span id="filename"></span></p>
+                        <p><span class="font-medium">Duration:</span> <span id="duration"></span> seconds</p>
+                        <p><span class="font-medium">FPS:</span> <span id="fps"></span></p>
+                        <p><span class="font-medium">Total Frames:</span> <span id="totalFrames"></span></p>
+                        <p><span class="font-medium">Extracted Frames:</span> <span id="extractedFrames"></span></p>
+                        <p><span class="font-medium">Reduction:</span> <span id="reductionPercentage"></span>%</p>
+                        <p><span class="font-medium">Video ID:</span> <span id="videoId" class="font-mono"></span></p>
+                        <p><span class="font-medium">Detection Status:</span> <span id="detectionStatus" class="font-medium">Not run</span></p>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Frame Gallery -->
+        <div id="frameGallery" class="hidden bg-gray-50 rounded-xl p-6 animate-fadeIn">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl sm:text-2xl font-semibold text-gray-700">Extracted Frames</h2>
+                <div class="flex gap-2">
+                    <button onclick="showOriginalFrames()" id="originalBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">
+                        Show Original
+                    </button>
+                    <button onclick="showDetectedFrames()" id="detectedBtn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-400">
+                        Show Detected
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Class Filter Section (hidden by default) -->
+            <div id="classFilterContainer" class="hidden">
+                <h3 class="text-md font-medium text-gray-700 mb-2">Filter by Class:</h3>
+                <div id="classFilter" class="class-filter">
+                    <button onclick="filterByClass('all')" class="class-filter-btn all-btn active">All Classes</button>
+                    <!-- Dynamic class buttons will be added here -->
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-4" id="frameList"></div>
+            
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="pagination hidden">
+                <button onclick="changePage(currentPage - 1)" id="prevPage" class="page-btn disabled">&laquo; Previous</button>
+                <!-- Page numbers will be inserted here -->
+                <button onclick="changePage(currentPage + 1)" id="nextPage" class="page-btn disabled">Next &raquo;</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let currentVideoData = null;
+        let showDetectionResults = false;
+        let selectedClassFilter = 'all';
+        let availableClasses = new Set();
+        let currentPage = 1;
+        const framesPerPage = 10;
+        let totalFilteredFrames = 0;
+
+        // Show status message
+        function showStatus(elementId, message, type) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.textContent = message;
+            statusElement.className = `p-4 rounded-lg ${
+                type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+            statusElement.classList.remove('hidden');
+        }
+
+        // Toggle loader visibility
+        function toggleLoader(loaderId, show) {
+            const loader = document.getElementById(loaderId);
+            loader.style.display = show ? 'flex' : 'none';
+        }
+
+        // Show video preview when file is selected
+        document.getElementById('videoFile').addEventListener('change', function() {
+            const file = this.files[0];
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPreview = document.getElementById('videoPreview');
+
+            if (file) {
+                videoPlayer.src = URL.createObjectURL(file);
+                videoPreview.classList.remove('hidden');
+            } else {
+                videoPreview.classList.add('hidden');
+            }
+        });
+
+        // Upload and process video
+        async function uploadAndProcessVideo() {
+            const fileInput = document.getElementById('videoFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showStatus('uploadStatus', 'Please select a video file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Reset UI
+                toggleLoader('uploadLoader', true);
+                document.getElementById('uploadStatus').classList.add('hidden');
+                document.getElementById('videoInfo').classList.add('hidden');
+                document.getElementById('frameGallery').classList.add('hidden');
+                document.getElementById('detectBtn').classList.add('hidden');
+
+                const response = await fetch('/Upload_Video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                currentVideoData = data.video_data;
+
+                        // Debug log to verify frame data
+                console.log("First frame data:", currentVideoData.frames[0]);
+                console.log("First frame labels:", currentVideoData.frames[0]?.labels);
+
+                // Display processing results
+                document.getElementById('filename').textContent = currentVideoData.filename;
+                document.getElementById('duration').textContent = currentVideoData.duration.toFixed(2);
+                document.getElementById('fps').textContent = currentVideoData.fps.toFixed(2);
+                document.getElementById('totalFrames').textContent = currentVideoData.totalFrames;
+                document.getElementById('extractedFrames').textContent = currentVideoData.extractedFrames;
+                document.getElementById('reductionPercentage').textContent = currentVideoData.reductionPercentage;
+                document.getElementById('videoId').textContent = currentVideoData.externalId;
+                
+                // Check detection status
+                const detectionStatus = currentVideoData.detection_status || 'Not run';
+                document.getElementById('detectionStatus').textContent = detectionStatus;
+                document.getElementById('detectionStatus').className = detectionStatus === 'completed' ? 
+                    'font-medium text-green-600' : 'font-medium text-gray-600';
+                
+                document.getElementById('videoInfo').classList.remove('hidden');
+                document.getElementById('frameGallery').classList.remove('hidden');
+                
+                // Show detect button if detection hasn't been run
+                if (detectionStatus !== 'completed') {
+                    document.getElementById('detectBtn').classList.remove('hidden');
+                }
+                
+                // Display extracted frames
+                displayFrames();
+
+                showStatus('uploadStatus', 'Video processed successfully!', 'success');
+            } catch (error) {
+                console.error('Upload error:', error);
+                showStatus('uploadStatus', `Error: ${error.message}`, 'error');
+            } finally {
+                toggleLoader('uploadLoader', false);
+            }
+        }
+
+        // Run object detection on the video
+        async function runObjectDetection() {
+            if (!currentVideoData || !currentVideoData.externalId) {
+                showStatus('detectStatus', 'No video data available', 'error');
+                return;
+            }
+
+            try {
+                toggleLoader('detectLoader', true);
+                document.getElementById('detectStatus').classList.add('hidden');
+                
+                const response = await fetch(`/Detect_Frames/${currentVideoData.externalId}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                // Update the current video data with the detection results
+                if (data.video_data) {
+                    // Merge the new data with existing video data
+                    currentVideoData = {
+                        ...currentVideoData,
+                        ...data.video_data,
+                        // Preserve the externalId if it exists
+                        externalId: currentVideoData.externalId || data.video_id
+                    };
+                    
+                    // Update available classes if they exist in the response
+                    if (data.video_data.availableClasses) {
+                        currentVideoData.availableClasses = new Set(data.video_data.availableClasses);
+                    }
+                }
+                
+                // Update detection status in the UI
+                document.getElementById('detectionStatus').textContent = 'completed';
+                document.getElementById('detectionStatus').className = 'font-medium text-green-600';
+                document.getElementById('detectBtn').classList.add('hidden');
+                
+                // Update frames with detection results
+                displayFrames();
+                
+                // Show detected frames view by default after detection
+                showDetectedFrames();
+                
+                showStatus('detectStatus', 'Object detection completed successfully!', 'success');
+            } catch (error) {
+                console.error('Detection error:', error);
+                showStatus('detectStatus', `Error: ${error.message}`, 'error');
+            } finally {
+                toggleLoader('detectLoader', false);
+            }
+        }
+
+        // Update the class filter buttons based on available classes
+        function updateClassFilterButtons() {
+            const classFilter = document.getElementById('classFilter');
+            
+            // Clear existing buttons (except "All")
+            while (classFilter.children.length > 1) {
+                classFilter.removeChild(classFilter.lastChild);
+            }
+
+            // Add buttons for each class
+            if (currentVideoData.availableClasses && currentVideoData.availableClasses.size > 0) {
+                currentVideoData.availableClasses.forEach(className => {
+                    const btn = document.createElement('button');
+                    btn.className = `class-filter-btn ${selectedClassFilter === className ? 'active' : ''}`;
+                    btn.textContent = className;
+                    btn.onclick = () => filterByClass(className);
+                    classFilter.appendChild(btn);
+                });
+            } else {
+                console.warn("No classes available for filtering");
+            }
+
+            // Update "All" button state
+            const allBtn = classFilter.querySelector('.all-btn');
+            if (allBtn) {
+                allBtn.className = selectedClassFilter === 'all' ? 
+                    'class-filter-btn all-btn active' : 
+                    'class-filter-btn all-btn';
+            }
+        }
+            
+            // Make sure "All" button has correct active state
+            const allBtn = classFilter.querySelector('.all-btn');
+            if (allBtn) {
+                allBtn.className = selectedClassFilter === 'all' ? 
+                    'class-filter-btn all-btn active' : 
+                    'class-filter-btn all-btn';
+            }
+        
+
+        function displayFrames() {
+            const frameList = document.getElementById('frameList');
+            frameList.innerHTML = '';
+
+            if (!currentVideoData || !currentVideoData.frames) return;
+
+            // Get the video ID - prefer externalId, then video_id from API, then fallback to externalId from original data
+            const videoId = currentVideoData.externalId || currentVideoData.video_id;
+            if (!videoId) {
+                console.error("No video ID available");
+                return;
+            }
+
+            // Filter frames based on class selection
+            const filteredFrames = currentVideoData.frames.filter(frame => {
+                if (!showDetectionResults) return true;
+                if (selectedClassFilter === 'all') return true;
+                return frame.labels && Array.isArray(frame.labels) && 
+                    frame.labels.some(label => label.class_name === selectedClassFilter);
+            });
+
+            totalFilteredFrames = filteredFrames.length;
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(totalFilteredFrames / framesPerPage);
+            const startIndex = (currentPage - 1) * framesPerPage;
+            const endIndex = Math.min(startIndex + framesPerPage, totalFilteredFrames);
+            const framesToDisplay = filteredFrames.slice(startIndex, endIndex);
+
+            // Display frames for current page
+            framesToDisplay.forEach(frame => {
+                const frameElement = document.createElement('div');
+                frameElement.className = 'w-full sm:w-48 bg-white rounded-lg overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow';
+                
+                const imgUrl = showDetectionResults ? 
+                    `/frame_with_boxes/${videoId}/${frame.frameNumber}` :
+                    `/get_frame/${frame.gridfsId}`;
+                
+                // Safely count detections
+                let relevantDetections = 0;
+                if (frame.labels && Array.isArray(frame.labels)) {
+                    if (selectedClassFilter === 'all') {
+                        relevantDetections = frame.labels.length;
+                    } else {
+                        relevantDetections = frame.labels.filter(label => 
+                            label.class_name === selectedClassFilter).length;
+                    }
+                }
+                
+                frameElement.innerHTML = `
+                    <div class="p-3 ${showDetectionResults ? 'bg-green-50 border-b border-green-100' : 'bg-indigo-50 border-b border-indigo-100'}">
+                        <h4 class="text-sm font-medium ${showDetectionResults ? 'text-green-700' : 'text-indigo-700'}">
+                            Frame ${frame.frameNumber}
+                        </h4>
+                    </div>
+                    <div class="p-3">
+                        <img src="${imgUrl}" alt="Frame ${frame.frameNumber}" class="w-full h-auto rounded" 
+                            onclick="openModal('${imgUrl}', ${frame.frameNumber}, ${frame.timestamp.toFixed(2)}, ${relevantDetections})">
+                        <p class="text-xs text-gray-500 mt-2">Timestamp: ${frame.timestamp.toFixed(2)}s</p>
+                        ${relevantDetections > 0 ? 
+                            `<p class="text-xs text-green-600 mt-1">Detections: ${relevantDetections}</p>` : 
+                            ''}
+                    </div>
+                `;
+                
+                frameList.appendChild(frameElement);
+            });
+
+            // Update pagination controls
+            updatePaginationControls(totalPages);
+        }
+
+
+
+        // Update pagination controls
+        function updatePaginationControls(totalPages) {
+            const paginationControls = document.getElementById('paginationControls');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            
+            // Show pagination only if there are multiple pages
+            if (totalPages > 1) {
+                paginationControls.classList.remove('hidden');
+            } else {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+            
+            // Update previous/next buttons
+            prevPageBtn.disabled = currentPage === 1;
+            prevPageBtn.className = currentPage === 1 ? 'page-btn disabled' : 'page-btn';
+            
+            nextPageBtn.disabled = currentPage === totalPages;
+            nextPageBtn.className = currentPage === totalPages ? 'page-btn disabled' : 'page-btn';
+            
+            // Clear existing page number buttons (keep prev/next buttons)
+            const pageNumbersContainer = document.createElement('div');
+            pageNumbersContainer.className = 'flex gap-1';
+            
+            // Always show first page
+            if (currentPage > 3) {
+                const firstPageBtn = document.createElement('button');
+                firstPageBtn.textContent = '1';
+                firstPageBtn.className = 'page-btn';
+                firstPageBtn.onclick = () => changePage(1);
+                pageNumbersContainer.appendChild(firstPageBtn);
+                
+                if (currentPage > 4) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 flex items-center';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+            }
+            
+            // Show pages around current page
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = i === currentPage ? 'page-btn active' : 'page-btn';
+                pageBtn.onclick = () => changePage(i);
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+            
+            // Always show last page
+            if (currentPage < totalPages - 2) {
+                if (currentPage < totalPages - 3) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 flex items-center';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+                
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.className = 'page-btn';
+                lastPageBtn.onclick = () => changePage(totalPages);
+                pageNumbersContainer.appendChild(lastPageBtn);
+            }
+            
+            // Replace existing page numbers
+            const existingPageNumbers = paginationControls.querySelector('.flex.gap-1');
+            if (existingPageNumbers) {
+                paginationControls.replaceChild(pageNumbersContainer, existingPageNumbers);
+            } else {
+                // Insert between prev and next buttons
+                nextPageBtn.before(pageNumbersContainer);
+            }
+        }
+
+        // Change page
+        function changePage(newPage) {
+            const totalPages = Math.ceil(totalFilteredFrames / framesPerPage);
+            
+            if (newPage < 1 || newPage > totalPages) return;
+            
+            currentPage = newPage;
+            displayFrames();
+            
+            // Scroll to top of frame gallery
+            document.getElementById('frameGallery').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Show original frames
+        function showOriginalFrames() {
+            showDetectionResults = false;
+            selectedClassFilter = 'all';
+            currentPage = 1;
+            document.getElementById('originalBtn').className = 'bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700';
+            document.getElementById('detectedBtn').className = 'bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-400';
+            document.getElementById('classFilterContainer').classList.add('hidden');
+            document.getElementById('paginationControls').classList.remove('hidden');
+            displayFrames();
+        }
+
+        // Show frames with detection boxes
+        function showDetectedFrames() {
+            showDetectionResults = true;
+            currentPage = 1;
+            document.getElementById('originalBtn').className = 'bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-400';
+            document.getElementById('detectedBtn').className = 'bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700';
+            document.getElementById('classFilterContainer').classList.remove('hidden');
+            document.getElementById('paginationControls').classList.remove('hidden');
+
+            // Initialize availableClasses if it doesn't exist
+            if (!currentVideoData.availableClasses) {
+                currentVideoData.availableClasses = new Set();
+            }
+
+            // Populate available classes from frames that have labels
+            if (currentVideoData && currentVideoData.frames) {
+                currentVideoData.frames.forEach(frame => {
+                    if (frame.labels && Array.isArray(frame.labels)) {
+                        frame.labels.forEach(label => {
+                            if (label.class_name && typeof label.class_name === 'string') {
+                                currentVideoData.availableClasses.add(label.class_name);
+                            }
+                        });
+                    }
+                });
+            }
+
+            updateClassFilterButtons();
+            displayFrames();
+        }
+        // Filter frames by class
+        function filterByClass(className) {
+            selectedClassFilter = className;
+            currentPage = 1;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.class-filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', 
+                    btn.textContent === className || 
+                    (className === 'all' && btn.classList.contains('all-btn'))
+                );
+            });
+            
+            displayFrames();
+        }
+
+        // Open modal with enlarged frame
+        function openModal(imgUrl, frameNumber, timestamp, detections) {
+            const modal = document.getElementById('frameModal');
+            const modalImg = document.getElementById('modalImage');
+            const modalInfo = document.getElementById('modalFrameInfo');
+            
+            modal.style.display = "block";
+            modalImg.src = imgUrl;
+            
+            let infoText = `Frame ${frameNumber} | Timestamp: ${timestamp}s`;
+            if (detections > 0) {
+                infoText += ` | Detections: ${detections}`;
+            }
+            modalInfo.textContent = infoText;
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('frameModal').style.display = "none";
+        }
+
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById('frameModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
