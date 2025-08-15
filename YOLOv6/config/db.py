@@ -4,5 +4,5 @@ from pathlib import Path
 
 # Load configuration
 config_json = json.loads(Path("config.json").read_text())
-client = pymongo.MongoClient(host=config_json['mongo_path'], connectTimeoutMS=30000)
+client = pymongo.MongoClient(host=config_json['mongo_path'])
 database = client['CCTV_Monitoring']
