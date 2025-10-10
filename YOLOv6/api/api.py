@@ -10,6 +10,7 @@ import tempfile
 import numpy as np
 import httpx
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ def frame_similarity(frame1, frame2, threshold=0.95):
             threshold = 0.85  # Adjust threshold for MSE-based comparison
     
     return score > threshold
+
 
 @router.post("/Upload_Video", response_model=UploadVideoResponse)
 async def upload_video(file: UploadFile = File(...), similarity_threshold: float = 0.95):

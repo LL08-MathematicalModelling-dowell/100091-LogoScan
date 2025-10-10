@@ -27,7 +27,7 @@ EXTERNAL_COLLECTION_NAME = "Videos_Collection"
 YOLO_YAML = 'data/coco.yaml' 
 YOLO_WEIGHTS = 'weights/yolov6s.pt'
 IMG_SIZE = 640
-DEVICE = '0'
+DEVICE = 'cpu'
 
 async def get_video_document(video_id: str):
     headers = {
