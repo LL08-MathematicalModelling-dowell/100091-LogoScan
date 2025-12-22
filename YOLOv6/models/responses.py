@@ -31,3 +31,10 @@ class FramePredictionResponse(BaseModel):
     message: str
     video_id: str
     predictions_id: str
+
+
+class RegisterUser(BaseModel):
+    firstName: str
+    lastName: str
+    email: str
+    password: str

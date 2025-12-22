@@ -79,6 +79,67 @@ async def get_video_document(video_id: str):
         logger.error(f"Connection error: {str(e)}")
         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
 
+
+
+async def get_all_video_document():
+    headers = {
+        "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    params = {
+        "database_id": EXTERNAL_DATABASE_ID,
+        "collection_name": EXTERNAL_COLLECTION_NAME,
+        "filters": {"data"}
+    }
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                EXTERNAL_API_URL,
+                headers=headers,
+                params=params
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            results = {}
+
+            documents = data.get("data", [])
+            if not isinstance(documents, list):
+                return results
+            total_frames_completed = 0
+            for doc in documents:
+                video_id = str(doc.get("_id"))
+                frames = doc.get("frames", [])
+
+                completed_count = sum(
+                    1 for frame in frames
+                    if frame.get("detection_status") == "completed"
+                )
+
+                results[video_id] = completed_count
+                total_frames_completed +=completed_count
+
+
+            return total_frames_completed
+
+            
+    except httpx.HTTPStatusError as e:
+        logger.error(f"External API error: {e.response.text}")
+        raise HTTPException(status_code=502, detail="External service error")
+    except Exception as e:
+        logger.error(f"Connection error: {str(e)}")
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
+
+@router.get("/get_video_count")
+async def get_video_count():
+    return {
+        "developers_online": await get_all_video_document(),
+        "github_stars": 2847
+    }
+
+
 @router.get("/frame_with_boxes/{video_id}/{frame_number}")
 async def get_frame_with_boxes(video_id: str, frame_number: int):
     try:

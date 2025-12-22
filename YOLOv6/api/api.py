@@ -1,7 +1,7 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException
 from config.db import database
 from gridfs import GridFS
-from models.responses import UploadVideoResponse
+from models.responses import UploadVideoResponse , RegisterUser
 import cv2
 import logging
 import os
@@ -78,6 +78,74 @@ def frame_similarity(frame1, frame2, threshold=0.95):
             threshold = 0.85  # Adjust threshold for MSE-based comparison
     
     return score > threshold
+
+
+@router.post("/api/register")
+async def register_user(user: RegisterUser):
+    EXTERNAL_API_URL = "https://datacube.uxlivinglab.online/api/register"
+    EXTERNAL_API_KEY = "sk_test_krMmjoMdev9ej_sd8dNCJ-ILho2CsPgyB478Vkxhx4Y"
+    headers = {
+        "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "email": user.email,
+        "firstName": user.firstName,
+        "lastName": user.lastName,
+        "password": user.password
+        }
+    print("new register")
+    
+    print("NEW USER REGISTERED")
+    print(f"First Name: {user.firstName}")
+    print(f"Last Name: {user.lastName}")
+    print(f"Email: {user.email}")
+    print(f"Password: {user.password}")  # ⚠️ only for testing
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(EXTERNAL_API_URL, json=payload, headers=headers)
+            response.raise_for_status()
+            print(response.json())
+            return {
+                "message": "User registered successfully. Check server logs."
+            }
+            # return response.json()
+        except httpx.HTTPStatusError as e:
+            logger.error(f"External API error: {e.response.text}")
+            raise HTTPException(status_code=502, detail="External service error")
+        except Exception as e:
+            logger.error(f"Connection error: {str(e)}")
+            raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
+
+
+
+
+# @router.post("/register")
+# async def new_register(data: dict):
+   
+    
+    # payload = {
+    #     "database_id": EXTERNAL_DATABASE_ID,
+    #     "collection_name": EXTERNAL_COLLECTION_NAME,
+    #     "data": [data]
+    # }
+    
+    # async with httpx.AsyncClient() as client:
+    #     try:
+    #         response = await client.post(EXTERNAL_API_URL, json=payload, headers=headers)
+    #         response.raise_for_status()
+    #         return response.json()
+    #     except httpx.HTTPStatusError as e:
+    #         logger.error(f"External API error: {e.response.text}")
+    #         raise HTTPException(status_code=502, detail="External service error")
+    #     except Exception as e:
+    #         logger.error(f"Connection error: {str(e)}")
+    #         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
+
+
+
 
 
 @router.post("/Upload_Video", response_model=UploadVideoResponse)

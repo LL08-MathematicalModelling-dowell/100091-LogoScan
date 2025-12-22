@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UXLiving lab - AI Video Object Detection</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+    background: radial-gradient(ellipse at top, #1e293b 0%, #020617 60%);
+}
+
+/* Glass effect */
+.glass {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Smooth hover lift */
+.lift {
+    transition: all 0.3s ease;
+}
+.lift:hover {
+    transform: translateY(-6px);
+}
+</style>
+</head>
+
+<body class="text-white font-sans">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 w-full z-50 glass h-16 flex items-center justify-between px-10 shadow-lg">
+    <div class="flex items-center gap-3">
+        <img src="/static/images/dowelllogo.png" class="h-9" alt="Logo">
+        <span class="text-lg font-semibold text-green-400">
+            DoWell UX Living Lab
+        </span>
+    </div>
+
+    <button onclick="goLogin()"
+        class="bg-green-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition">
+        Log In
+    </button>
+</nav>
+
+<!-- HERO -->
+<section class="pt-32 pb-24 text-center px-6">
+    <h1 class="text-6xl md:text-7xl font-extrabold text-green-400 mb-6 tracking-tight">
+        Video Intelligence
+    </h1>
+
+    <p class="text-2xl text-gray-300 mb-4">
+        AI-Powered Video Object Detection
+    </p>
+
+    <p class="max-w-3xl mx-auto text-gray-400 text-lg mb-12">
+        Transform CCTV and video footage into actionable intelligence.
+        Detect humans, logos, and objects with frame-level accuracy using
+        high-performance deep learning models.
+    </p>
+
+    <div class="flex flex-wrap justify-center gap-6">
+        <button onclick="goStart()"
+            class="bg-green-500 text-black px-10 py-4 rounded-xl text-lg font-bold hover:bg-green-600 transition shadow-lg">
+            🚀 Start Video Analysis
+        </button>
+
+        <button
+            class="border border-green-500 px-10 py-4 rounded-xl text-lg font-semibold hover:bg-green-500 hover:text-black transition">
+            ⚡ API Docs
+        </button>
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 text-center mb-28 px-6">
+    <div class="glass rounded-2xl py-10 lift">
+        <div id="devCount" class="text-5xl font-bold text-green-400 mb-2">—</div>
+        <p class="text-gray-400 text-lg">Frames Processed</p>
+    </div>
+
+    <div class="glass rounded-2xl py-10 lift">
+        <div id="githubStars" class="text-5xl font-bold text-green-400 mb-2">—</div>
+        <p class="text-gray-400 text-lg">Developers Online Now</p>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="max-w-6xl mx-auto px-6 pb-32">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+        <!-- Feature 1 -->
+        <div class="glass rounded-2xl p-10 text-center lift">
+            <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center text-3xl text-green-400">
+                🎞️
+            </div>
+            <h3 class="text-2xl font-semibold mb-3">
+                Frame-Level Intelligence
+            </h3>
+            <p class="text-gray-400 leading-relaxed">
+                Videos are decomposed into frames and analyzed individually,
+                enabling precise object detection with timestamps and confidence scores.
+            </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass rounded-2xl p-10 text-center lift">
+            <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center text-3xl text-green-400">
+                🛡️
+            </div>
+            <h3 class="text-2xl font-semibold mb-3">
+                Secure & Private Processing
+            </h3>
+            <p class="text-gray-400 leading-relaxed">
+                Your videos stay private. Processing is secure, controlled,
+                and designed for enterprise-grade CCTV workloads.
+            </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass rounded-2xl p-10 text-center lift">
+            <div class="mx-auto mb-6 w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center text-3xl text-green-400">
+                ⚡
+            </div>
+            <h3 class="text-2xl font-semibold mb-3">
+                FastAPI-Powered APIs
+            </h3>
+            <p class="text-gray-400 leading-relaxed">
+                High-performance inference APIs built with FastAPI
+                deliver results in seconds for both short clips and long videos.
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="text-center py-10 text-gray-500 text-sm border-t border-white/5">
+    © 2025 DoWell UX Living Lab · From Raw Video to Actionable Intelligence
+</footer>
+
+<script>
+function goStart() {
+    window.location.href = "/videoupload";
+}
+
+function goLogin() {
+    window.location.href = "/login";
+}
+
+// Fetch live stats
+async function fetchStats() {
+    try {
+        // const res = await fetch("/api/stats");
+        const res = await fetch("/get_video_count")
+        const data = await res.json();
+        document.getElementById("devCount").textContent =
+            data.developers_online.toLocaleString() + "+";
+        document.getElementById("githubStars").textContent =
+            data.github_stars.toLocaleString();
+    } catch (e) {
+        console.error("Failed to fetch stats", e);
+    }
+}
+
+fetchStats();
+setInterval(fetchStats, 5000);
+</script>
+
+</body>
+</html>

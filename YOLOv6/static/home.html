@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Video Processing System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 10px 5px 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.active {
+            background-color: #2196F3;
+        }
+        .frame-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .frame-preview img {
+            max-width: 100%;
+            max-height: 500px;
+            border: 1px solid #ddd;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 5px 0;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .uploading {
+            background-color: #fff3cd;
+        }
+        .success {
+            background-color: #d4edda;
+        }
+        .error {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Processing System</h1>
+    
+    <div class="section">
+        <h2>Upload Video</h2>
+        <input type="file" id="videoFile" accept="video/*">
+        <button onclick="uploadVideo()">Upload and Process</button>
+        <div id="uploadStatus" class="status"></div>
+        
+        <div id="videoInfo" style="display: none;">
+            <h3>Video Information</h3>
+            <ul>
+                <li>Filename: <span id="filename"></span></li>
+                <li>Duration: <span id="duration"></span> seconds</li>
+                <li>FPS: <span id="fps"></span></li>
+                <li>Total Frames: <span id="totalFrames"></span></li>
+                <li>Extracted Frames: <span id="extractedFrames"></span></li>
+                <li>Video ID: <span id="videoId"></span></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="detectionSection" class="section" style="display: none;">
+        <h2>Object Detection</h2>
+        <button onclick="detectObjects()">Run Object Detection</button>
+        <div id="detectionStatus" class="status"></div>
+        
+        <div id="results" style="display: none;">
+            <h3>Detection Summary</h3>
+            <ul id="resultsList"></ul>
+        </div>
+    </div>
+    
+    <div id="frameViewer" class="section" style="display: none;">
+        <h2>Frame Viewer</h2>
+        <div class="frame-list" id="frameList"></div>
+        
+        <div id="framePreview">
+            <h3>Preview: <span id="frameTitle"></span></h3>
+            <img id="frameImage" src="" alt="Selected frame">
+            
+            <div id="detectionInfo" style="display: none;">
+                <h4>Detected Objects:</h4>
+                <ul id="detectionList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentVideoId = null;
+        let frameData = {};
+        
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status ' + type;
+            element.style.display = 'block';
+        }
+        
+        async function uploadVideo() {
+            const fileInput = document.getElementById('videoFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a video file first');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                showStatus('uploadStatus', 'Uploading...', 'uploading');
+                
+                const response = await fetch('http://localhost:8000/Upload_Video', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                currentVideoId = data.video_data._id;
+                frameData = data.video_data;
+                
+                // Display video info
+                document.getElementById('filename').textContent = data.video_data.filename;
+                document.getElementById('duration').textContent = data.video_data.duration.toFixed(2);
+                document.getElementById('fps').textContent = data.video_data.fps;
+                document.getElementById('totalFrames').textContent = data.video_data.total_frames;
+                document.getElementById('extractedFrames').textContent = data.video_data.extracted_frames;
+                document.getElementById('videoId').textContent = data.video_data._id;
+                
+                document.getElementById('videoInfo').style.display = 'block';
+                document.getElementById('detectionSection').style.display = 'block';
+                document.getElementById('frameViewer').style.display = 'block';
+                
+                // Create frame buttons
+                const frameList = document.getElementById('frameList');
+                frameList.innerHTML = '';
+                for (let i = 1; i <= data.video_data.extracted_frames; i++) {
+                    const frameKey = `frame${i}`;
+                    const button = document.createElement('button');
+                    button.textContent = `Frame ${i}`;
+                    button.onclick = () => loadFramePreview(frameKey);
+                    frameList.appendChild(button);
+                }
+                
+                showStatus('uploadStatus', 'Upload and processing complete!', 'success');
+            } catch (error) {
+                console.error('Upload error:', error);
+                showStatus('uploadStatus', 'Upload failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function detectObjects() {
+            if (!currentVideoId) {
+                alert('Please upload a video first');
+                return;
+            }
+            
+            try {
+                showStatus('detectionStatus', 'Detecting objects...', 'uploading');
+                
+                const response = await fetch(`http://localhost:8000/Detect_Frames/${currentVideoId}`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Update frameData with detection results
+                for (const [key, value] of Object.entries(data.updated_frames)) {
+                    frameData[key] = value;
+                }
+                
+                // Display results summary
+                const resultsList = document.getElementById('resultsList');
+                resultsList.innerHTML = '';
+                for (const [frameKey, stat] of Object.entries(data.stats)) {
+                    const li = document.createElement('li');
+                    li.textContent = `${frameKey}: ${typeof stat === 'number' ? `${stat} objects detected` : stat}`;
+                    resultsList.appendChild(li);
+                }
+                
+                document.getElementById('results').style.display = 'block';
+                showStatus('detectionStatus', 'Detection complete!', 'success');
+            } catch (error) {
+                console.error('Detection error:', error);
+                showStatus('detectionStatus', 'Detection failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadFramePreview(frameKey) {
+            if (!frameData[frameKey]) return;
+            
+            document.getElementById('frameTitle').textContent = frameKey;
+            
+            try {
+                // Get frame number from frameKey (e.g., "frame1" -> 1)
+                const frameNum = parseInt(frameKey.replace('frame', ''));
+                
+                // Use our new endpoint that returns the image with boxes
+                const response = await fetch(`http://localhost:8000/frame_with_boxes/${currentVideoId}/${frameNum}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                document.getElementById('frameImage').src = url;
+                
+                // Display detection info if available
+                const detectionList = document.getElementById('detectionList');
+                detectionList.innerHTML = '';
+                
+                if (frameData[frameKey].labels && frameData[frameKey].labels.length > 0) {
+                    frameData[frameKey].labels.forEach(obj => {
+                        const li = document.createElement('li');
+                        li.textContent = `${obj.class_name} (confidence: ${(obj.confidence * 100).toFixed(1)}%)`;
+                        detectionList.appendChild(li);
+                    });
+                    document.getElementById('detectionInfo').style.display = 'block';
+                } else {
+                    document.getElementById('detectionInfo').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading frame:', error);
+                alert('Error loading frame: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
