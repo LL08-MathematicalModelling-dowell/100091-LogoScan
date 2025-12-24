@@ -78,9 +78,7 @@ async def get_video_document(video_id: str):
     except Exception as e:
         logger.error(f"Connection error: {str(e)}")
         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
-
-
-
+    
 async def get_all_video_document():
     headers = {
         "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
@@ -138,7 +136,6 @@ async def get_video_count():
         "developers_online": await get_all_video_document(),
         "github_stars": 2847
     }
-
 
 @router.get("/frame_with_boxes/{video_id}/{frame_number}")
 async def get_frame_with_boxes(video_id: str, frame_number: int):
