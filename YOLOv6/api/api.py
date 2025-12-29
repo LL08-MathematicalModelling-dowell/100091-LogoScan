@@ -47,7 +47,7 @@ async def post_to_external_api(data: dict):
     payload = {
         "database_id": EXTERNAL_DATABASE_ID,
         "collection_name": EXTERNAL_COLLECTION_NAME,
-        "data": [data]
+        "documents": [data]
     }
     
     async with httpx.AsyncClient() as client:
@@ -112,32 +112,31 @@ def resize_frame_if_large(frame, max_height=720, max_width=1280):
     
     return frame
 
-async def send_progress_update(task_id: str, stage: str, progress: float, message: str, details: Optional[Dict] = None):
-    """Send progress update to connected WebSocket client"""
-    # Update in-memory progress store first
+async def send_progress_update(
+    task_id: str,
+    stage: str,
+    progress: float,
+    message: str,
+    details: Optional[Dict] = None
+):
     update = {
         "task_id": task_id,
         "stage": stage,
         "progress": round(progress, 2),
         "message": message,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.utcnow().isoformat()
     }
+
     if details:
         update["details"] = details
-    
+
     task_progress[task_id] = update
-    logger.debug(f"Progress update for task {task_id}: {progress}% - {message}")
-    
-    # Send to WebSocket if connected
+
     if task_id in active_connections:
         try:
             await active_connections[task_id].send_json(update)
-            logger.debug(f"Sent WebSocket update for task {task_id}")
-        except Exception as e:
-            logger.error(f"Failed to send WebSocket update for task {task_id}: {str(e)}")
-            # Remove disconnected WebSocket
-            if task_id in active_connections:
-                del active_connections[task_id]
+        except:
+            active_connections.pop(task_id, None)
 
 def create_progress_callback(task_id: str):
     """Create a progress callback that puts updates in a queue for the main event loop"""
@@ -254,140 +253,235 @@ async def register_user(user: RegisterUser):
     #         logger.error(f"Connection error: {str(e)}")
     #         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
 
-@router.post("/Upload_Video", response_model=UploadVideoResponse)
-async def upload_video(file: UploadFile = File(...), similarity_threshold: float = 0.95):
-    task_id = str(uuid.uuid4())
-    logger.info(f"Starting video upload task {task_id} for file: {file.filename}")
-    
+async def process_video_background(
+    task_id: str,
+    temp_path: str,
+    filename: str,
+    content_type: str,
+    similarity_threshold: float
+):
+    start_time = datetime.utcnow()
+
     try:
-        # Validate file type
-        if not file.content_type.startswith('video/'):
-            raise HTTPException(status_code=400, detail="File must be a video")
+        await send_progress_update(task_id, "processing", 25, "Processing video...")
 
-        # Create progress tracking
-        start_time = datetime.utcnow()
-        
-        # Stage 1: Reading file
-        await send_progress_update(task_id, "uploading", 5, "Starting file upload...")
-        logger.info(f"Task {task_id}: Starting file upload")
-        
-        # Store uploaded video temporarily
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
-            # Read file in chunks to avoid memory issues
-            chunk_size = 1024 * 1024 * 10  # 10MB chunks
-            total_size = 0
-            while True:
-                chunk = await file.read(chunk_size)
-                if not chunk:
-                    break
-                temp_video.write(chunk)
-                total_size += len(chunk)
-                
-                # Update progress during upload (if we know file size)
-                if file.size:
-                    upload_progress = (total_size / file.size) * 100
-                    # Upload stage is 0-25%
-                    overall_progress = min(25, upload_progress * 0.25)
-                    await send_progress_update(
-                        task_id, 
-                        "uploading", 
-                        overall_progress,
-                        f"Uploading video... {format_file_size(total_size)} / {format_file_size(file.size)}"
-                    )
-                    
-            temp_video_path = temp_video.name
+        loop = asyncio.get_event_loop()
 
-        try:
-            # Stage 2: Processing video
-            await send_progress_update(task_id, "processing", 25, "Starting video processing...")
-            logger.info(f"Task {task_id}: Starting video processing")
-            
-            # Process video in background thread with progress callback
-            video_doc = await asyncio.get_event_loop().run_in_executor(
-                executor, 
-                lambda: process_video_file(
-                    temp_video_path, 
-                    file.filename, 
-                    file.content_type, 
-                    similarity_threshold,
-                    create_progress_callback(task_id)
-                )
+        video_doc = await loop.run_in_executor(
+            executor,
+            lambda: process_video_file(
+                temp_path,
+                filename,
+                content_type,
+                similarity_threshold,
+                create_progress_callback(task_id)
             )
-            
-            # Stage 3: Storing data
-            await send_progress_update(task_id, "storing", 75, "Storing metadata...")
-            logger.info(f"Task {task_id}: Storing metadata")
-            
-            # Add timing info
-            processing_time = (datetime.utcnow() - start_time).total_seconds()
-            video_doc["processing_time"] = processing_time
-            video_doc["createdAt"] = datetime.utcnow().isoformat() + "Z"
+        )
 
-            # Store metadata in external API
-            await send_progress_update(task_id, "storing", 85, "Sending to external API...")
-            api_response = await post_to_external_api(video_doc)
-            
-            if not api_response.get("success", False):
-                raise HTTPException(
-                    status_code=502,
-                    detail="External API did not confirm successful storage"
-                )
-            
-            # Get the first inserted ID from the response
-            inserted_ids = api_response.get("inserted_ids", [])
-            external_id = inserted_ids[0] if inserted_ids else "unknown"
+        await send_progress_update(task_id, "storing", 75, "Saving metadata...")
 
-            # Stage 4: Complete
-            logger.info(f"Task {task_id}: Processing complete in {processing_time:.2f}s")
-            await send_progress_update(
-                task_id, 
-                "complete", 
-                100, 
-                "Video processing complete!",
-                {
-                    "external_id": external_id,
-                    "processing_time": processing_time,
-                    "extracted_frames": video_doc.get("extractedFrames", 0),
-                    "reduction_percentage": video_doc.get("reductionPercentage", 0)
-                }
-            )
+        processing_time = (datetime.utcnow() - start_time).total_seconds()
+        video_doc["processing_time"] = processing_time
+        video_doc["createdAt"] = datetime.utcnow().isoformat() + "Z"
 
-            return {
-                "message": f"Video processed and stored successfully in {processing_time:.2f}s",
-                "task_id": task_id,
-                "video_data": {
-                    **video_doc,
-                    "externalId": external_id,
-                    "storageStatus": "Frames stored locally, metadata stored externally"
-                }
+        api_response = await post_to_external_api(video_doc)
+        external_id = api_response.get("inserted_ids", ["unknown"])[0]
+
+        await send_progress_update(
+            task_id,
+            "complete",
+            100,
+            "Video processing complete",
+            {
+                "external_id": external_id,
+                "processing_time": processing_time,
+                "extracted_frames": video_doc.get("extractedFrames"),
+                "reduction_percentage": video_doc.get("reductionPercentage")
             }
+        )
 
-        finally:
-            try:
-                os.unlink(temp_video_path)
-                logger.debug(f"Task {task_id}: Cleaned up temp file")
-            except Exception as e:
-                logger.error(f"Task {task_id}: Error deleting temp file: {e}")
-
-    except HTTPException as he:
-        logger.error(f"Task {task_id}: HTTP Exception: {he.detail}")
-        await send_progress_update(task_id, "error", 0, f"Error: {he.detail}")
-        raise
     except Exception as e:
-        error_msg = f"Error processing video: {str(e)}"
-        logger.error(f"Task {task_id}: {error_msg}")
-        await send_progress_update(task_id, "error", 0, error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
+        await send_progress_update(
+            task_id,
+            "error",
+            0,
+            f"Processing failed: {str(e)}"
+        )
+
     finally:
-        # Schedule cleanup after a delay
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+
         asyncio.create_task(cleanup_task_progress(task_id))
 
+@router.post("/Upload_Video", response_model=UploadVideoResponse)
+async def upload_video(
+    file: UploadFile = File(...),
+    similarity_threshold: float = 0.95
+):
+    if not file.content_type.startswith("video/"):
+        raise HTTPException(status_code=400, detail="Invalid video file")
+
+    task_id = str(uuid.uuid4())
+
+    task_progress[task_id] = {
+        "task_id": task_id,
+        "stage": "uploading",
+        "progress": 0,
+        "message": "Saving file...",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    # ✅ SAVE FILE *INSIDE REQUEST*
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
+        while chunk := await file.read(10 * 1024 * 1024):
+            tmp.write(chunk)
+        temp_path = tmp.name
+
+    # ✅ START BACKGROUND TASK WITH FILE PATH
+    asyncio.create_task(
+        process_video_background(
+            task_id,
+            temp_path,
+            file.filename,
+            file.content_type,
+            similarity_threshold
+        )
+    )
+
+    return {
+        "task_id": task_id,
+        "message": "Upload started"
+    }
+
+    
+    # try:
+    #     # Validate file type
+    #     if not file.content_type.startswith('video/'):
+    #         raise HTTPException(status_code=400, detail="File must be a video")
+
+    #     # Create progress tracking
+    #     start_time = datetime.utcnow()
+        
+    #     # Stage 1: Reading file
+    #     await send_progress_update(task_id, "uploading", 5, "Starting file upload...")
+    #     logger.info(f"Task {task_id}: Starting file upload")
+        
+    #     # Store uploaded video temporarily
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+    #         # Read file in chunks to avoid memory issues
+    #         chunk_size = 1024 * 1024 * 10  # 10MB chunks
+    #         total_size = 0
+    #         while True:
+    #             chunk = await file.read(chunk_size)
+    #             if not chunk:
+    #                 break
+    #             temp_video.write(chunk)
+    #             total_size += len(chunk)
+                
+    #             # Update progress during upload (if we know file size)
+    #             if file.size:
+    #                 upload_progress = (total_size / file.size) * 100
+    #                 # Upload stage is 0-25%
+    #                 overall_progress = min(25, upload_progress * 0.25)
+    #                 await send_progress_update(
+    #                     task_id, 
+    #                     "uploading", 
+    #                     overall_progress,
+    #                     f"Uploading video... {format_file_size(total_size)} / {format_file_size(file.size)}"
+    #                 )
+                    
+    #         temp_video_path = temp_video.name
+
+    #     try:
+    #         # Stage 2: Processing video
+    #         await send_progress_update(task_id, "processing", 25, "Starting video processing...")
+    #         logger.info(f"Task {task_id}: Starting video processing")
+            
+    #         # Process video in background thread with progress callback
+    #         video_doc = await asyncio.get_event_loop().run_in_executor(
+    #             executor, 
+    #             lambda: process_video_file(
+    #                 temp_video_path, 
+    #                 file.filename, 
+    #                 file.content_type, 
+    #                 similarity_threshold,
+    #                 create_progress_callback(task_id)
+    #             )
+    #         )
+            
+    #         # Stage 3: Storing data
+    #         await send_progress_update(task_id, "storing", 75, "Storing metadata...")
+    #         logger.info(f"Task {task_id}: Storing metadata")
+            
+    #         # Add timing info
+    #         processing_time = (datetime.utcnow() - start_time).total_seconds()
+    #         video_doc["processing_time"] = processing_time
+    #         video_doc["createdAt"] = datetime.utcnow().isoformat() + "Z"
+
+    #         # Store metadata in external API
+    #         await send_progress_update(task_id, "storing", 85, "Sending to external API...")
+    #         api_response = await post_to_external_api(video_doc)
+            
+    #         if not api_response.get("success", False):
+    #             raise HTTPException(
+    #                 status_code=502,
+    #                 detail="External API did not confirm successful storage"
+    #             )
+            
+    #         # Get the first inserted ID from the response
+    #         inserted_ids = api_response.get("inserted_ids", [])
+    #         external_id = inserted_ids[0] if inserted_ids else "unknown"
+
+    #         # Stage 4: Complete
+    #         logger.info(f"Task {task_id}: Processing complete in {processing_time:.2f}s")
+    #         await send_progress_update(
+    #             task_id, 
+    #             "complete", 
+    #             100, 
+    #             "Video processing complete!",
+    #             {
+    #                 "external_id": external_id,
+    #                 "processing_time": processing_time,
+    #                 "extracted_frames": video_doc.get("extractedFrames", 0),
+    #                 "reduction_percentage": video_doc.get("reductionPercentage", 0)
+    #             }
+    #         )
+
+    #         return {
+    #             "message": f"Video processed and stored successfully in {processing_time:.2f}s",
+    #             "task_id": task_id,
+    #             "video_data": {
+    #                 **video_doc,
+    #                 "externalId": external_id,
+    #                 "storageStatus": "Frames stored locally, metadata stored externally"
+    #             }
+    #         }
+
+    #     finally:
+    #         try:
+    #             os.unlink(temp_video_path)
+    #             logger.debug(f"Task {task_id}: Cleaned up temp file")
+    #         except Exception as e:
+    #             logger.error(f"Task {task_id}: Error deleting temp file: {e}")
+
+    # except HTTPException as he:
+    #     logger.error(f"Task {task_id}: HTTP Exception: {he.detail}")
+    #     await send_progress_update(task_id, "error", 0, f"Error: {he.detail}")
+    #     raise
+    # except Exception as e:
+    #     error_msg = f"Error processing video: {str(e)}"
+    #     logger.error(f"Task {task_id}: {error_msg}")
+    #     await send_progress_update(task_id, "error", 0, error_msg)
+    #     raise HTTPException(status_code=500, detail=error_msg)
+    # finally:
+    #     # Schedule cleanup after a delay
+    #     asyncio.create_task(cleanup_task_progress(task_id))
+
 async def cleanup_task_progress(task_id: str):
-    """Clean up progress tracking after a delay"""
-    await asyncio.sleep(30)  # Keep progress data for 30 seconds after completion
-    if task_id in task_progress:
-        del task_progress[task_id]
-        logger.debug(f"Cleaned up progress for task {task_id}")
+    await asyncio.sleep(300)
+    task_progress.pop(task_id, None)
+    logger.debug(f"Cleaned up progress for task {task_id}")
 
 def format_file_size(size_bytes):
     """Format file size in human readable format"""
@@ -549,88 +643,28 @@ async def startup_event():
     asyncio.create_task(process_progress_queue())
 
 @router.websocket("/progress/{task_id}")
-async def progress_tracker(websocket: WebSocket, task_id: str):
-    """WebSocket endpoint for real-time progress tracking"""
+async def progress_ws(websocket: WebSocket, task_id: str):
     await websocket.accept()
-    
-    # Store connection
     active_connections[task_id] = websocket
-    logger.info(f"WebSocket connected for task {task_id}")
-    
+
+    if task_id in task_progress:
+        await websocket.send_json(task_progress[task_id])
+
     try:
-        # Send initial connection confirmation
-        await websocket.send_json({
-            "task_id": task_id,
-            "stage": "connected",
-            "progress": 0,
-            "message": "Connected to progress tracker",
-            "timestamp": datetime.utcnow().isoformat()
-        })
-        
-        # If there's existing progress for this task, send it
-        if task_id in task_progress:
-            await websocket.send_json(task_progress[task_id])
-            logger.debug(f"Sent existing progress for task {task_id}")
-        
-        # Keep connection alive and listen for any client messages
         while True:
-            try:
-                # Set a timeout for receiving messages
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=30.0)
-                
-                # Client can send "ping" to keep connection alive or request status
-                if data == "ping":
-                    await websocket.send_json({
-                        "task_id": task_id,
-                        "stage": "pong",
-                        "progress": task_progress.get(task_id, {}).get("progress", 0),
-                        "message": "Connection alive",
-                        "timestamp": datetime.utcnow().isoformat()
-                    })
-                elif data == "get_status":
-                    if task_id in task_progress:
-                        await websocket.send_json(task_progress[task_id])
-                    else:
-                        await websocket.send_json({
-                            "task_id": task_id,
-                            "stage": "unknown",
-                            "progress": 0,
-                            "message": "Task not found or completed",
-                            "timestamp": datetime.utcnow().isoformat()
-                        })
-            except asyncio.TimeoutError:
-                # Send a ping to keep connection alive
-                await websocket.send_json({
-                    "task_id": task_id,
-                    "stage": "ping",
-                    "progress": task_progress.get(task_id, {}).get("progress", 0),
-                    "message": "Connection check",
-                    "timestamp": datetime.utcnow().isoformat()
-                })
-                    
+            await asyncio.sleep(30)
     except WebSocketDisconnect:
-        logger.info(f"Client disconnected for task {task_id}")
-    except Exception as e:
-        logger.error(f"Error in progress tracker for task {task_id}: {str(e)}")
-    finally:
-        # Clean up connection
-        if task_id in active_connections:
-            del active_connections[task_id]
-            logger.debug(f"Removed WebSocket connection for task {task_id}")
+        active_connections.pop(task_id, None)
 
 @router.get("/progress/{task_id}")
 async def get_progress(task_id: str):
-    """HTTP endpoint to get current progress (fallback if WebSocket not available)"""
-    if task_id in task_progress:
-        return task_progress[task_id]
-    else:
-        return {
-            "task_id": task_id,
-            "stage": "unknown",
-            "progress": 0,
-            "message": "Task not found or completed",
-            "timestamp": datetime.utcnow().isoformat()
-        }
+    return task_progress.get(task_id, {
+        "task_id": task_id,
+        "stage": "unknown",
+        "progress": 0,
+        "message": "Task not found",
+        "timestamp": datetime.utcnow().isoformat()
+    })
 
 @router.get("/active_tasks")
 async def get_active_tasks():

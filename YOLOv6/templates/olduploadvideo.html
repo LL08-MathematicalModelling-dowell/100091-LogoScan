@@ -48,15 +48,138 @@
         .progress-animated {
             animation: progressStripes 1s linear infinite;
         }
-        /* Stage colors */
-        .stage-uploading { background: linear-gradient(to right, #4f46e5, #7c3aed); }
-        .stage-processing { background: linear-gradient(to right, #f59e0b, #d97706); }
-        .stage-storing { background: linear-gradient(to right, #10b981, #059669); }
-        .stage-complete { background: linear-gradient(to right, #10b981, #059669); }
-        .stage-error { background: linear-gradient(to right, #ef4444, #dc2626); }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 5vh;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .frame-info {
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        /* Stage indicators */
+        .stage-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+        .stage-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background-color: #e5e7eb;
+            z-index: 1;
+        }
+        .stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            position: relative;
+        }
+        .stage-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6b7280;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+        .stage.active .stage-circle {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .stage.completed .stage-circle {
+            background-color: #10b981;
+            color: white;
+        }
+        .stage-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+        }
+        .stage.active .stage-label {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .stage.completed .stage-label {
+            color: #10b981;
+        }
+        /* Detection progress */
+        .detection-progress {
+            background-color: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .detection-progress h4 {
+            color: #065f46;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .detection-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            font-size: 13px;
+        }
+        .detection-stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #d1fae5;
+        }
+        .detection-stat-label {
+            color: #374151;
+        }
+        .detection-stat-value {
+            color: #111827;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+    <!-- Modal for enlarged frame view -->
+    <div id="frameModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="modalFrameInfo" class="frame-info"></div>
+    </div>
+
     <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <!-- Header -->
         <div class="bg-indigo-700 text-white p-6">
@@ -77,6 +200,73 @@
                         <span id="currentTaskId" class="font-mono text-sm bg-white px-2 py-1 rounded"></span>
                     </div>
                 </div>
+                
+                <!-- Stage Indicator -->
+                <div id="stageIndicator" class="stage-indicator hidden">
+                    <div class="stage" id="stageUpload">
+                        <div class="stage-circle">1</div>
+                        <span class="stage-label">Upload</span>
+                    </div>
+                    <div class="stage" id="stageProcessing">
+                        <div class="stage-circle">2</div>
+                        <span class="stage-label">Processing</span>
+                    </div>
+                    <div class="stage" id="stageStoring">
+                        <div class="stage-circle">3</div>
+                        <span class="stage-label">Storing</span>
+                    </div>
+                    <div class="stage" id="stageComplete">
+                        <div class="stage-circle">4</div>
+                        <span class="stage-label">Complete</span>
+                    </div>
+                </div>
+                
+                <!-- File info display -->
+                <div id="fileInfo" class="file-info hidden">
+                    <div class="file-info-item">
+                        <span class="file-info-label">File Name:</span>
+                        <span id="fileNameDisplay" class="file-info-value"></span>
+                    </div>
+                    <div class="file-info-item">
+                        <span class="file-info-label">File Size:</span>
+                        <span id="fileSizeDisplay" class="file-info-value"></span>
+                    </div>
+                    <div class="file-info-item">
+                        <span class="file-info-label">File Type:</span>
+                        <span id="fileTypeDisplay" class="file-info-value"></span>
+                    </div>
+                </div>
+
+                <!-- Warning for large files -->
+                <div id="largeFileWarning" class="warning-box hidden">
+                    <div class="warning-icon">⚠️</div>
+                    <div class="warning-text">
+                        <strong>Large file detected.</strong> Processing may take longer. 
+                        For best results with large videos, consider reducing the similarity threshold.
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
+                    <div class="w-full">
+                        <input type="file" id="videoFile" accept="video/*" class="file:mr-4 file:py-3 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200 w-full">
+                        <div class="flex items-center gap-3 mt-3">
+                            <span class="text-sm text-gray-600">Similarity Threshold:</span>
+                            <input type="range" id="similarityThreshold" min="0.5" max="1.0" step="0.05" value="0.95" class="w-32">
+                            <span id="thresholdValue" class="text-sm font-medium text-indigo-700">0.95</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="uploadAndProcessVideo()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="uploadBtn">
+                            Upload & Process
+                        </button>
+                        <button onclick="cancelProcessing()" id="cancelBtn" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-all hidden">
+                            Cancel
+                        </button>
+                        <button onclick="runObjectDetection()" id="detectBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-all hidden">
+                            Run Object Detection
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Progress Container -->
                 <div id="progressContainer" class="hidden">
@@ -86,139 +276,111 @@
                             <span id="progressStage">Starting...</span>
                             <span id="progressPercent">0%</span>
                         </div>
-                        <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-                            <div id="overallProgressBar" class="h-full stage-uploading transition-all duration-300" style="width: 0%"></div>
+                        <div class="progress-container h-4 rounded-full overflow-hidden">
+                            <div id="overallProgressBar" class="progress-bar h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300" style="width: 0%"></div>
                         </div>
                         <div id="progressMessage" class="text-sm text-gray-600 mt-2"></div>
                     </div>
                     
-                    <!-- Stage Indicator -->
-                    <div class="mb-6">
-                        <div class="flex justify-between mb-2">
-                            <div class="text-sm font-medium text-gray-700">
-                                Stage: <span id="currentStage">Uploading</span>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                <span id="stageProgress">0%</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-4 gap-2">
-                            <div class="text-center">
-                                <div class="h-2 bg-indigo-200 rounded-full mb-1">
-                                    <div id="stage1Bar" class="h-2 bg-indigo-600 rounded-full" style="width: 0%"></div>
-                                </div>
-                                <span class="text-xs text-gray-600">Upload</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="h-2 bg-amber-200 rounded-full mb-1">
-                                    <div id="stage2Bar" class="h-2 bg-amber-600 rounded-full" style="width: 0%"></div>
-                                </div>
-                                <span class="text-xs text-gray-600">Processing</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="h-2 bg-emerald-200 rounded-full mb-1">
-                                    <div id="stage3Bar" class="h-2 bg-emerald-600 rounded-full" style="width: 0%"></div>
-                                </div>
-                                <span class="text-xs text-gray-600">Storing</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="h-2 bg-gray-200 rounded-full mb-1">
-                                    <div id="stage4Bar" class="h-2 bg-emerald-600 rounded-full" style="width: 0%"></div>
-                                </div>
-                                <span class="text-xs text-gray-600">Complete</span>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Detailed Progress -->
-                    <div id="detailedProgress" class="space-y-3 bg-gray-50 p-4 rounded-lg">
-                        <div class="flex justify-between text-sm">
+                    <div id="detailedProgress" class="hidden space-y-3">
+                        <div class="flex justify-between text-xs">
                             <span class="text-gray-600">Frames Processed:</span>
                             <span id="framesProcessed" class="font-medium">0</span>
                         </div>
-                        <div class="flex justify-between text-sm">
+                        <div class="flex justify-between text-xs">
                             <span class="text-gray-600">Frames Extracted:</span>
                             <span id="framesExtracted" class="font-medium">0</span>
                         </div>
-                        <div class="flex justify-between text-sm">
+                        <div class="flex justify-between text-xs">
                             <span class="text-gray-600">Reduction:</span>
                             <span id="reductionDisplay" class="font-medium">0%</span>
                         </div>
-                        <div class="flex justify-between text-sm">
+                        <div class="flex justify-between text-xs">
                             <span class="text-gray-600">Time Elapsed:</span>
                             <span id="timeElapsed" class="font-medium">0s</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Upload Form -->
-                <div id="uploadForm">
-                    <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
-                        <div class="w-full">
-                            <input type="file" id="videoFile" accept="video/*" class="file:mr-4 file:py-3 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200 w-full">
-                            <div class="flex items-center gap-3 mt-3">
-                                <span class="text-sm text-gray-600">Similarity Threshold:</span>
-                                <input type="range" id="similarityThreshold" min="0.5" max="1.0" step="0.05" value="0.95" class="w-32">
-                                <span id="thresholdValue" class="text-sm font-medium text-indigo-700">0.95</span>
-                            </div>
+                <!-- Video Preview -->
+                <div id="videoPreview" class="hidden mb-6 animate-fadeIn">
+                    <h3 class="text-lg font-semibold text-indigo-600 mb-3">Video Preview</h3>
+                    <video id="videoPlayer" controls class="w-full h-auto rounded-lg border-2 border-indigo-200 max-h-80"></video>
+                </div>
+
+                <!-- Loaders -->
+                <div id="uploadLoader" class="hidden items-center gap-2 mb-4">
+                    <div class="spinner"></div>
+                    <span class="text-indigo-700">Processing video...</span>
+                </div>
+                
+                <div id="detectLoader" class="hidden items-center gap-2 mb-4">
+                    <div class="spinner"></div>
+                    <span class="text-green-700">Running object detection...</span>
+                </div>
+                
+                <!-- Status Messages -->
+                <div id="uploadStatus" class="p-4 rounded-lg hidden mb-6"></div>
+                <div id="detectStatus" class="p-4 rounded-lg hidden mb-6"></div>
+
+                <!-- Detection Progress Results -->
+                <div id="detectionResults" class="detection-progress hidden">
+                    <h4>Detection Results</h4>
+                    <div class="detection-stats">
+                        <div class="detection-stat-item">
+                            <span class="detection-stat-label">Total Frames:</span>
+                            <span id="detectionTotalFrames" class="detection-stat-value">0</span>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="uploadAndProcessVideo()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="uploadBtn">
-                                Upload & Process
-                            </button>
-                            <button onclick="cancelProcessing()" id="cancelBtn" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-all hidden">
-                                Cancel
-                            </button>
+                        <div class="detection-stat-item">
+                            <span class="detection-stat-label">Processed Frames:</span>
+                            <span id="detectionProcessedFrames" class="detection-stat-value">0</span>
+                        </div>
+                        <div class="detection-stat-item">
+                            <span class="detection-stat-label">Detected Objects:</span>
+                            <span id="detectionObjectsCount" class="detection-stat-value">0</span>
+                        </div>
+                        <div class="detection-stat-item">
+                            <span class="detection-stat-label">Detection Time:</span>
+                            <span id="detectionTime" class="detection-stat-value">0s</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Status Messages -->
-                <div id="uploadStatus" class="p-4 rounded-lg hidden mb-6"></div>
-
-                <!-- Processing Results -->
-                <div id="processingResults" class="hidden">
-                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-semibold text-emerald-700 mb-3">Processing Complete!</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
-                            <p><span class="font-medium">Filename:</span> <span id="filename"></span></p>
-                            <p><span class="font-medium">Duration:</span> <span id="duration"></span> seconds</p>
-                            <p><span class="font-medium">FPS:</span> <span id="fps"></span></p>
-                            <p><span class="font-medium">Total Frames:</span> <span id="totalFrames"></span></p>
-                            <p><span class="font-medium">Extracted Frames:</span> <span id="extractedFrames"></span></p>
-                            <p><span class="font-medium">Reduction:</span> <span id="reductionPercentage"></span>%</p>
-                            <p><span class="font-medium">Video ID:</span> <span id="videoId" class="font-mono"></span></p>
-                            <p><span class="font-medium">Processing Time:</span> <span id="processingTime" class="font-medium text-emerald-600">0s</span></p>
+                <!-- Processing Info -->
+                <div id="processingInfo" class="processing-info hidden">
+                    <h4>Processing Statistics</h4>
+                    <div class="processing-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Processing Time:</span>
+                            <span id="processingTime" class="stat-value">0s</span>
                         </div>
-                        
-                        <div class="flex gap-2">
-                            <button onclick="runObjectDetection()" id="detectBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-all">
-                                Run Object Detection
-                            </button>
-                            <button onclick="showFrames()" id="showFramesBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-all">
-                                View Extracted Frames
-                            </button>
+                        <div class="stat-item">
+                            <span class="stat-label">Similarity Threshold:</span>
+                            <span id="usedThreshold" class="stat-value">0.95</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Frame Sampling Rate:</span>
+                            <span id="samplingRate" class="stat-value">Auto</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Detection Status -->
-                    <div id="detectStatus" class="hidden mt-4"></div>
-
-                    <!-- Detection Loader -->
-                    <div id="detectLoader" class="hidden mt-4 flex items-center gap-2">
-                        <div class="spinner"></div>
-                        <span class="text-sm text-gray-600">Running object detection…</span>
-                    </div>
-
-                    <!-- Detection Results -->
-                    <div id="detectionResults" class="hidden mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-700 mb-3">Detection Summary</h3>
-                        <div class="grid grid-cols-2 gap-3 text-sm">
-                            <p>Total Frames: <span id="detectionTotalFrames"></span></p>
-                            <p>Processed Frames: <span id="detectionProcessedFrames"></span></p>
-                            <p>Detected Objects: <span id="detectionObjectsCount"></span></p>
-                            <p>Detection Time: <span id="detectionTime"></span></p>
-                        </div>
+                <!-- Video Info -->
+                <div id="videoInfo" class="hidden animate-fadeIn">
+                    <h3 class="text-lg sm:text-xl font-semibold text-indigo-600 mb-4">Processing Results</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                        <p><span class="font-medium">Filename:</span> <span id="filename"></span></p>
+                        <p><span class="font-medium">Duration:</span> <span id="duration"></span> seconds</p>
+                        <p><span class="font-medium">FPS:</span> <span id="fps"></span></p>
+                        <p><span class="font-medium">Total Frames:</span> <span id="totalFrames"></span></p>
+                        <p><span class="font-medium">Extracted Frames:</span> <span id="extractedFrames"></span></p>
+                        <p><span class="font-medium">Reduction:</span> <span id="reductionPercentage"></span>%</p>
+                        <p><span class="font-medium">Video ID:</span> <span id="videoId" class="font-mono"></span></p>
+                        <p><span class="font-medium">Detection Status:</span> 
+                            <span id="detectionStatus" class="font-medium">Not run</span>
+                            <span id="detectionStatusIcon" class="ml-2 hidden">✅</span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -270,13 +432,57 @@
 
     <script>
         let currentVideoData = null;
+        let showDetectionResults = false;
+        let selectedClassFilter = 'all';
+        let availableClasses = new Set();
+        let currentPage = 1;
+        const framesPerPage = 10;
+        let totalFilteredFrames = 0;
         let currentTaskId = null;
         let websocket = null;
         let progressInterval = null;
         let startTime = null;
-        let httpPollingInterval = null;
+        let processingCancelled = false;
+        let pollingStarted = false;
 
-        // WebSocket connection
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            if (seconds < 60) {
+                return `${seconds.toFixed(1)}s`;
+            } else if (seconds < 3600) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${minutes}m ${secs.toFixed(0)}s`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                return `${hours}h ${minutes}m`;
+            }
+        }
+
+        // Show status message
+        function showStatus(elementId, message, type) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.textContent = message;
+            statusElement.className = `p-4 rounded-lg ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
+                type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
+                type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                'bg-yellow-100 text-yellow-800 border border-yellow-200'
+            }`;
+            statusElement.classList.remove('hidden');
+        }
+
+        // Connect to WebSocket for progress updates
         async function connectWebSocket(taskId) {
             if (websocket) {
                 websocket.close();
@@ -285,58 +491,57 @@
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = `${protocol}//${window.location.host}/progress/${taskId}`;
             
-            console.log(`Connecting to WebSocket: ${wsUrl}`);
-            
             websocket = new WebSocket(wsUrl);
             
             websocket.onopen = function() {
                 console.log('WebSocket connected for task:', taskId);
-                // Start HTTP polling as a fallback
-                startHttpPolling(taskId);
+                // Start sending ping messages to keep connection alive
+                progressInterval = setInterval(() => {
+                    if (websocket.readyState === WebSocket.OPEN) {
+                        websocket.send('ping');
+                    }
+                }, 30000); // Ping every 30 seconds
             };
             
             websocket.onmessage = function(event) {
-                try {
-                    const progressData = JSON.parse(event.data);
-                    console.log('WebSocket message received:', progressData);
-                    updateProgressUI(progressData);
-                } catch (e) {
-                    console.error('Error parsing WebSocket message:', e);
-                }
+                const progressData = JSON.parse(event.data);
+                updateProgressUI(progressData);
             };
             
             websocket.onerror = function(error) {
                 console.error('WebSocket error:', error);
+                // Fallback to HTTP polling if WebSocket fails
+                startHttpPolling(taskId);
             };
             
             websocket.onclose = function() {
                 console.log('WebSocket disconnected');
-                // Continue with HTTP polling
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                }
             };
         }
 
         // HTTP polling fallback
         function startHttpPolling(taskId) {
-            if (httpPollingInterval) {
-                clearInterval(httpPollingInterval);
-            }
-            
-            httpPollingInterval = setInterval(async () => {
+            if (pollingStarted) return;
+            pollingStarted = true;
+
+            if (progressInterval) clearInterval(progressInterval);
+
+            progressInterval = setInterval(async () => {
                 try {
-                    const response = await fetch(`/progress/${taskId}`);
-                    const progressData = await response.json();
-                    console.log('HTTP polling response:', progressData);
-                    updateProgressUI(progressData);
-                    
-                    // If task is complete or errored, stop polling
-                    if (progressData.stage === 'complete' || progressData.stage === 'error') {
-                        clearInterval(httpPollingInterval);
-                        httpPollingInterval = null;
+                    const res = await fetch(`/progress/${taskId}`);
+                    const data = await res.json();
+                    updateProgressUI(data);
+
+                    if (data.stage === 'complete' || data.stage === 'error') {
+                        clearInterval(progressInterval);
                     }
-                } catch (error) {
-                    console.error('HTTP polling error:', error);
+                } catch (e) {
+                    console.error(e);
                 }
-            }, 1000); // Poll every 1 second
+            }, 2000);
         }
 
         // Update progress UI
@@ -346,25 +551,25 @@
             const message = progressData.message || '';
             const details = progressData.details || {};
             
-            console.log(`Updating UI: Stage=${stage}, Progress=${progressPercent}%, Message=${message}`);
-            
-            // Update main progress bar
+            // Update progress bar
             const progressBar = document.getElementById('overallProgressBar');
             const progressPercentElement = document.getElementById('progressPercent');
-            const progressStageElement = document.getElementById('progressStage');
             const progressMessageElement = document.getElementById('progressMessage');
+            const progressStageElement = document.getElementById('progressStage');
             
             if (progressBar) {
                 progressBar.style.width = `${progressPercent}%`;
+                progressBar.classList.toggle('progress-striped', stage !== 'complete' && stage !== 'error');
+                progressBar.classList.toggle('progress-animated', stage !== 'complete' && stage !== 'error');
                 
-                // Update progress bar color based on stage
-                progressBar.className = 'h-full transition-all duration-300';
-                if (stage === 'uploading') progressBar.classList.add('stage-uploading');
-                else if (stage === 'processing') progressBar.classList.add('stage-processing');
-                else if (stage === 'storing') progressBar.classList.add('stage-storing');
-                else if (stage === 'complete') progressBar.classList.add('stage-complete');
-                else if (stage === 'error') progressBar.classList.add('stage-error');
-                else progressBar.classList.add('stage-uploading');
+                // Change color based on stage
+                if (stage === 'error') {
+                    progressBar.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+                } else if (stage === 'complete') {
+                    progressBar.style.background = 'linear-gradient(to right, #10b981, #059669)';
+                } else {
+                    progressBar.style.background = 'linear-gradient(to right, #4f46e5, #7c3aed)';
+                }
             }
             
             if (progressPercentElement) {
@@ -379,15 +584,13 @@
                 progressMessageElement.textContent = message;
             }
             
-            // Update stage bars
-            updateStageBars(stage, progressPercent);
-            
-            // Update current stage
-            document.getElementById('currentStage').textContent = getStageLabel(stage);
-            document.getElementById('stageProgress').textContent = `${Math.round(progressPercent)}%`;
+            // Update stage indicators
+            updateStageIndicators(stage);
             
             // Update detailed progress
-            if (details) {
+            if (Object.keys(details).length > 0) {
+                document.getElementById('detailedProgress').classList.remove('hidden');
+                
                 if (details.frames_processed !== undefined) {
                     document.getElementById('framesProcessed').textContent = details.frames_processed;
                 }
@@ -405,7 +608,7 @@
             // Update time elapsed
             if (startTime) {
                 const elapsed = (Date.now() - startTime) / 1000;
-                document.getElementById('timeElapsed').textContent = `${elapsed.toFixed(1)}s`;
+                document.getElementById('timeElapsed').textContent = formatTime(elapsed);
             }
             
             // Handle completion or error
@@ -413,38 +616,6 @@
                 onProcessingComplete(progressData);
             } else if (stage === 'error') {
                 onProcessingError(message);
-            }
-        }
-
-        function updateStageBars(stage, overallProgress) {
-            // Reset all stage bars
-            document.getElementById('stage1Bar').style.width = '0%';
-            document.getElementById('stage2Bar').style.width = '0%';
-            document.getElementById('stage3Bar').style.width = '0%';
-            document.getElementById('stage4Bar').style.width = '0%';
-            
-            // Update based on current stage
-            if (stage === 'uploading') {
-                // Stage 1: 0-25%
-                const stageProgress = Math.min(100, (overallProgress / 25) * 100);
-                document.getElementById('stage1Bar').style.width = `${stageProgress}%`;
-            } else if (stage === 'processing') {
-                // Stage 1 complete, Stage 2: 25-75%
-                document.getElementById('stage1Bar').style.width = '100%';
-                const stageProgress = Math.min(100, ((overallProgress - 25) / 50) * 100);
-                document.getElementById('stage2Bar').style.width = `${stageProgress}%`;
-            } else if (stage === 'storing') {
-                // Stage 1 & 2 complete, Stage 3: 75-100%
-                document.getElementById('stage1Bar').style.width = '100%';
-                document.getElementById('stage2Bar').style.width = '100%';
-                const stageProgress = Math.min(100, ((overallProgress - 75) / 25) * 100);
-                document.getElementById('stage3Bar').style.width = `${stageProgress}%`;
-            } else if (stage === 'complete') {
-                // All stages complete
-                document.getElementById('stage1Bar').style.width = '100%';
-                document.getElementById('stage2Bar').style.width = '100%';
-                document.getElementById('stage3Bar').style.width = '100%';
-                document.getElementById('stage4Bar').style.width = '100%';
             }
         }
 
@@ -456,113 +627,128 @@
                 'complete': 'Complete',
                 'error': 'Error'
             };
-            return labels[stage] || stage;
+            return labels[stage] || 'Processing';
+        }
+
+        function updateStageIndicators(stage) {
+            const stageMap = {
+                uploading: 'upload',
+                processing: 'processing',
+                storing: 'storing',
+                complete: 'complete'
+            };
+
+            const normalizedStage = stageMap[stage] || stage;
+
+            const stages = ['upload', 'processing', 'storing', 'complete'];
+
+            stages.forEach((s, index) => {
+                const el = document.getElementById(`stage${s.charAt(0).toUpperCase() + s.slice(1)}`);
+                if (!el) return;
+
+                el.classList.remove('active', 'completed');
+
+                if (s === normalizedStage) {
+                    el.classList.add('active');
+                } else if (stages.indexOf(normalizedStage) > index) {
+                    el.classList.add('completed');
+                }
+            });
         }
 
         function onProcessingComplete(progressData) {
-            console.log('Processing complete:', progressData);
-            
-            // Hide progress container
-            document.getElementById('progressContainer').classList.add('hidden');
-            
             // Hide cancel button
             document.getElementById('cancelBtn').classList.add('hidden');
             
             // Show success message
             showStatus('uploadStatus', progressData.message || 'Processing complete!', 'success');
             
-            // Store video data from details
-            if (progressData.details) {
-                currentVideoData = {
-                    externalId: progressData.details.external_id,
-                    processing_time: progressData.details.processing_time,
-                    extractedFrames: progressData.details.extracted_frames,
-                    reductionPercentage: progressData.details.reduction_percentage
-                };
+            // Update task completion time if available
+            if (progressData.details && progressData.details.processing_time) {
+                document.getElementById('processingTime').textContent = `${progressData.details.processing_time.toFixed(2)}s`;
             }
             
-            // Show processing results
-            showProcessingResults(progressData.details);
+            // Stop progress updates
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
             
-            // Clean up
+            // Close WebSocket
             if (websocket) {
                 websocket.close();
-                websocket = null;
-            }
-            if (httpPollingInterval) {
-                clearInterval(httpPollingInterval);
-                httpPollingInterval = null;
             }
         }
 
         function onProcessingError(errorMessage) {
-            console.error('Processing error:', errorMessage);
-            
-            // Hide progress container
-            document.getElementById('progressContainer').classList.add('hidden');
-            
             // Hide cancel button
             document.getElementById('cancelBtn').classList.add('hidden');
             
             // Show error message
             showStatus('uploadStatus', errorMessage, 'error');
             
-            // Show upload form
-            document.getElementById('uploadForm').classList.remove('hidden');
+            // Enable upload button
             document.getElementById('uploadBtn').disabled = false;
-            document.getElementById('videoFile').disabled = false;
             
-            // Clean up
+            // Stop progress updates
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            
+            // Close WebSocket
             if (websocket) {
                 websocket.close();
-                websocket = null;
-            }
-            if (httpPollingInterval) {
-                clearInterval(httpPollingInterval);
-                httpPollingInterval = null;
             }
         }
 
-        function showProcessingResults(details) {
-            if (!details) return;
+        // Show file info when file is selected
+        document.getElementById('videoFile').addEventListener('change', function() {
+            const file = this.files[0];
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPreview = document.getElementById('videoPreview');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const warningBox = document.getElementById('largeFileWarning');
+            const thresholdSlider = document.getElementById('similarityThreshold');
 
-            // Fill summary fields
-            document.getElementById('filename').textContent = details.filename || '-';
-            document.getElementById('duration').textContent = details.duration || '-';
-            document.getElementById('fps').textContent = details.fps || '-';
-            document.getElementById('totalFrames').textContent = details.total_frames || '-';
-            document.getElementById('extractedFrames').textContent = details.extracted_frames || '-';
-            document.getElementById('reductionPercentage').textContent =
-                details.reduction_percentage ?? '-';
+            if (file) {
+                // Show file info
+                document.getElementById('fileNameDisplay').textContent = file.name;
+                document.getElementById('fileSizeDisplay').textContent = formatFileSize(file.size);
+                document.getElementById('fileTypeDisplay').textContent = file.type;
+                fileInfo.classList.remove('hidden');
+                
+                // Show/hide warning for large files
+                if (file.size > 50 * 1024 * 1024) { // 50MB
+                    warningBox.classList.remove('hidden');
+                    // Auto-adjust threshold for large files
+                    thresholdSlider.value = 0.85;
+                    document.getElementById('thresholdValue').textContent = '0.85';
+                } else {
+                    warningBox.classList.add('hidden');
+                    thresholdSlider.value = 0.95;
+                    document.getElementById('thresholdValue').textContent = '0.95';
+                }
 
-            // IMPORTANT: store video ID for detection
-            document.getElementById('videoId').textContent =
-                details.external_id || details.video_id || '-';
+                // Enable upload button
+                uploadBtn.disabled = false;
+                
+                // Show video preview
+                videoPlayer.src = URL.createObjectURL(file);
+                videoPreview.classList.remove('hidden');
+            } else {
+                fileInfo.classList.add('hidden');
+                warningBox.classList.add('hidden');
+                videoPreview.classList.add('hidden');
+                uploadBtn.disabled = true;
+            }
+        });
 
-            // Store for later usage
-            currentVideoData = {
-                ...currentVideoData,
-                frames: details.frames || [],
-                externalId: details.external_id || details.video_id
-            };
+        // Update threshold value display
+        document.getElementById('similarityThreshold').addEventListener('input', function() {
+            document.getElementById('thresholdValue').textContent = this.value;
+        });
 
-            // Show results panel
-            document.getElementById('processingResults').classList.remove('hidden');
-        }
-
-        function showStatus(elementId, message, type) {
-            const statusElement = document.getElementById(elementId);
-            statusElement.textContent = message;
-            statusElement.className = `p-4 rounded-lg ${
-                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
-                type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-                type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-                'bg-yellow-100 text-yellow-800 border border-yellow-200'
-            }`;
-            statusElement.classList.remove('hidden');
-        }
-
-        // Upload and process video
+        // Upload and process video with progress tracking
         async function uploadAndProcessVideo() {
             const fileInput = document.getElementById('videoFile');
             const file = fileInput.files[0];
@@ -574,10 +760,11 @@
             }
 
             // Reset state
+            processingCancelled = false;
             startTime = Date.now();
-            
+
             // Show file size confirmation for large files
-            if (file.size > 100 * 1024 * 1024) {
+            if (file.size > 100 * 1024 * 1024) { // 100MB
                 if (!confirm(`This file is ${formatFileSize(file.size)}. Large files may take several minutes to process. Continue?`)) {
                     return;
                 }
@@ -589,21 +776,23 @@
 
             try {
                 // Reset UI
-                document.getElementById('uploadStatus').classList.add('hidden');
-                document.getElementById('processingResults').classList.add('hidden');
-                document.getElementById('frameGallery').classList.add('hidden');
-                
-                // Show progress container
                 document.getElementById('progressContainer').classList.remove('hidden');
-                document.getElementById('uploadForm').classList.add('hidden');
+                document.getElementById('stageIndicator').classList.remove('hidden');
+                document.getElementById('uploadStatus').classList.add('hidden');
+                document.getElementById('videoInfo').classList.add('hidden');
+                document.getElementById('frameGallery').classList.add('hidden');
+                document.getElementById('detectBtn').classList.add('hidden');
+                document.getElementById('processingInfo').classList.add('hidden');
+                document.getElementById('detailedProgress').classList.add('hidden');
                 
                 // Show cancel button
                 document.getElementById('cancelBtn').classList.remove('hidden');
+                document.getElementById('uploadBtn').classList.add('hidden');
                 
                 // Disable file input during processing
                 fileInput.disabled = true;
 
-                // Initialize progress UI
+                // Start progress tracking
                 updateProgressUI({
                     stage: 'uploading',
                     progress: 5,
@@ -622,85 +811,116 @@
                 }
 
                 const data = await response.json();
-                console.log('Upload response:', data);
                 
-                // Store task ID
+                // Store task ID and connect WebSocket
                 currentTaskId = data.task_id;
-                currentVideoData = data.video_data;
-                
-                // Show task ID
                 document.getElementById('taskIdDisplay').classList.remove('hidden');
                 document.getElementById('currentTaskId').textContent = currentTaskId;
                 
-                // Connect to WebSocket for progress updates
+                // Store video data
+                if (data.video_data) {
+                    currentVideoData = data.video_data;
+                    
+                    // Update UI with video info after processing completes
+                    setTimeout(() => {
+                        if (currentVideoData) {
+                            displayVideoInfo(currentVideoData);
+                        }
+                    }, 1000);
+                }
+
+                // Connect to WebSocket for real-time updates
                 await connectWebSocket(currentTaskId);
 
             } catch (error) {
                 console.error('Upload error:', error);
                 onProcessingError(`Error: ${error.message}`);
+                
+                // Re-enable UI
+                document.getElementById('uploadBtn').classList.remove('hidden');
+                document.getElementById('cancelBtn').classList.add('hidden');
+                document.getElementById('uploadBtn').disabled = false;
+                fileInput.disabled = false;
             }
         }
 
+        // Display video information after processing
+        function displayVideoInfo(videoData) {
+            if (!videoData) return;
+
+            document.getElementById('filename').textContent = videoData.filename;
+            document.getElementById('duration').textContent = videoData.duration ? videoData.duration.toFixed(2) : 'N/A';
+            document.getElementById('fps').textContent = videoData.fps ? videoData.fps.toFixed(2) : 'N/A';
+            document.getElementById('totalFrames').textContent = videoData.totalFrames || 'N/A';
+            document.getElementById('extractedFrames').textContent = videoData.extractedFrames || 'N/A';
+            document.getElementById('reductionPercentage').textContent = videoData.reductionPercentage || '0.00';
+            document.getElementById('videoId').textContent = videoData.externalId || 'N/A';
+            
+            // Check detection status
+            const detectionStatus = videoData.detection_status || 'Not run';
+            document.getElementById('detectionStatus').textContent = detectionStatus;
+            document.getElementById('detectionStatus').className = detectionStatus === 'completed' ? 
+                'font-medium text-green-600' : 'font-medium text-gray-600';
+            
+            // Show/hide detection icon
+            const detectionIcon = document.getElementById('detectionStatusIcon');
+            if (detectionStatus === 'completed') {
+                detectionIcon.classList.remove('hidden');
+            } else {
+                detectionIcon.classList.add('hidden');
+            }
+            
+            document.getElementById('videoInfo').classList.remove('hidden');
+            document.getElementById('frameGallery').classList.remove('hidden');
+            document.getElementById('processingInfo').classList.remove('hidden');
+            
+            // Show processing time if available
+            if (videoData.processing_time) {
+                document.getElementById('processingTime').textContent = `${videoData.processing_time.toFixed(2)}s`;
+            }
+            
+            // Show used threshold
+            document.getElementById('usedThreshold').textContent = videoData.similarityThreshold || '0.95';
+            
+            // Show sampling rate
+            if (videoData.processingFps) {
+                document.getElementById('samplingRate').textContent = `${videoData.processingFps} FPS`;
+            }
+            
+            // Show detect button if detection hasn't been run
+            if (detectionStatus !== 'completed') {
+                document.getElementById('detectBtn').classList.remove('hidden');
+            }
+            
+            // Display extracted frames
+            displayFrames();
+        }
+
+        // Cancel processing
         function cancelProcessing() {
             if (confirm('Are you sure you want to cancel processing?')) {
+                processingCancelled = true;
+                
                 // Update UI
                 showStatus('uploadStatus', 'Processing cancelled by user', 'info');
                 document.getElementById('progressContainer').classList.add('hidden');
-                document.getElementById('uploadForm').classList.remove('hidden');
+                document.getElementById('stageIndicator').classList.add('hidden');
+                document.getElementById('cancelBtn').classList.add('hidden');
+                document.getElementById('uploadBtn').classList.remove('hidden');
                 document.getElementById('uploadBtn').disabled = false;
                 document.getElementById('videoFile').disabled = false;
-                document.getElementById('cancelBtn').classList.add('hidden');
                 
                 // Clean up
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                }
                 if (websocket) {
                     websocket.close();
-                    websocket = null;
-                }
-                if (httpPollingInterval) {
-                    clearInterval(httpPollingInterval);
-                    httpPollingInterval = null;
                 }
             }
         }
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            const thresholdSlider = document.getElementById('similarityThreshold');
-            document.getElementById('thresholdValue').textContent = thresholdSlider.value;
-            document.getElementById('uploadBtn').disabled = true;
-            
-            // File input change event
-            document.getElementById('videoFile').addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    document.getElementById('uploadBtn').disabled = false;
-                } else {
-                    document.getElementById('uploadBtn').disabled = true;
-                }
-            });
-            
-            // Threshold slider change event
-            thresholdSlider.addEventListener('input', function() {
-                document.getElementById('thresholdValue').textContent = this.value;
-            });
-        });
-
-        function toggleLoader(id, show) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.classList.toggle('hidden', !show);
-        }
-
-
-     // Run object detection on the video
+        // Run object detection on the video
         async function runObjectDetection() {
             if (!currentVideoData || !currentVideoData.externalId) {
                 showStatus('detectStatus', 'No video data available', 'error');
@@ -747,10 +967,6 @@
                             // Preserve the externalId
                             externalId: currentVideoData.externalId
                         };
-                    }
-
-                    if (data.video_data && data.video_data.frames) {
-                        currentVideoData.frames = data.video_data.frames;
                     }
                     
                     // Calculate detection time
@@ -799,6 +1015,12 @@
                 
                 showStatus('detectStatus', `Error: ${errorMessage}`, 'error');
             }
+        }
+
+        // Toggle loader visibility
+        function toggleLoader(loaderId, show) {
+            const loader = document.getElementById(loaderId);
+            loader.style.display = show ? 'flex' : 'none';
         }
 
         // Update the class filter buttons based on available classes
@@ -1094,16 +1316,6 @@
 
             updateClassFilterButtons();
             displayFrames();
-        }
-
-        function showFrames() {
-            if (!currentVideoData || !currentVideoData.frames) {
-                alert("No frames available");
-                return;
-            }
-
-            document.getElementById('frameGallery').classList.remove('hidden');
-            showOriginalFrames();
         }
         
         // Filter frames by class
