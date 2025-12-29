@@ -23,15 +23,14 @@ class VideoDataResponse(BaseModel):
     storageStatus: str
 
 class UploadVideoResponse(BaseModel):
+    task_id: str
     message: str
-    video_data: VideoDataResponse
 
 
 class FramePredictionResponse(BaseModel):
     message: str
     video_id: str
     predictions_id: str
-
 
 class RegisterUser(BaseModel):
     firstName: str
