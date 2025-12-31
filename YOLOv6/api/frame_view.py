@@ -87,8 +87,7 @@ async def get_all_video_document():
     
     params = {
         "database_id": EXTERNAL_DATABASE_ID,
-        "collection_name": EXTERNAL_COLLECTION_NAME,
-        "filters": {"data"}
+        "collection_name": EXTERNAL_COLLECTION_NAME
     }
     try:
         async with httpx.AsyncClient() as client:

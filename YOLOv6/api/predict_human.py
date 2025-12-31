@@ -30,6 +30,7 @@ IMG_SIZE = 640
 DEVICE = 'cpu'
 
 async def get_video_document(video_id: str):
+    video_id = video_id.strip('"\'')
     headers = {
         "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
         "Content-Type": "application/json"
@@ -38,7 +39,7 @@ async def get_video_document(video_id: str):
     params = {
         "database_id": EXTERNAL_DATABASE_ID,
         "collection_name": EXTERNAL_COLLECTION_NAME,
-        "filters": {"data"}
+        "filters": json.dumps({"_id": video_id})
     }
     
     try:
@@ -51,11 +52,11 @@ async def get_video_document(video_id: str):
             response.raise_for_status()
             data = response.json()
             
-            # Clean the video_id by stripping quotes
-            video_id = video_id.strip('"\'')  # <-- FIX HERE
+            # # Clean the video_id by stripping quotes
+            # video_id = video_id.strip('"\'')  # <-- FIX HERE
             
-            print(f"Searching for video_id: '{video_id}'")  # Debug
-            print("Available IDs:", [item["_id"] for item in data.get("data", [])])  # Debug
+            # print(f"Searching for video_id: '{video_id}'")  # Debug
+            # print("Available IDs:", [item["_id"] for item in data.get("data", [])])  # Debug
 
             if not data.get("success"):
                 raise HTTPException(status_code=404, detail="External API reported failure")
@@ -187,7 +188,7 @@ async def detect_on_frames(video_id: str):
         update_payload = {
             "database_id": EXTERNAL_DATABASE_ID,
             "collection_name": EXTERNAL_COLLECTION_NAME,
-            "filters": {"id": document_id},  # Use the _id from the document
+            "filters": {"_id": document_id}, # Use the _id from the document
             "update_data": updated_video_doc
         }
 
