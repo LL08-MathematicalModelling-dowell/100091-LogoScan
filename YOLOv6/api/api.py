@@ -2,6 +2,7 @@ from fastapi import APIRouter, File, UploadFile, HTTPException, WebSocket, WebSo
 from config.db import database
 from gridfs import GridFS
 from models.responses import UploadVideoResponse, RegisterUser
+from api.security import verify_password , hash_password
 import cv2
 import logging
 import os
@@ -15,7 +16,8 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Optional
 import queue
 import threading
-
+import hashlib
+import httpx, json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -192,40 +194,72 @@ async def process_progress_queue():
 
 @router.post("/api/register")
 async def register_user(user: RegisterUser):
-    EXTERNAL_API_URL = "https://datacube.uxlivinglab.online/api/register"
-    EXTERNAL_API_KEY = "sk_test_krMmjoMdev9ej_sd8dNCJ-ILho2CsPgyB478Vkxhx4Y"
-    headers = {
-        "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
+    BASE_URL = "https://datacube.uxlivinglab.online/api"
+    API_KEY = "sk_test_krMmjoMdev9ej_sd8dNCJ-ILho2CsPgyB478Vkxhx4Y"
+    DATABASE_ID = "695010bdf54c9d57672ce03e"  # auth_app
+
+    HEADERS = {
+        "Authorization": f"Api-Key {API_KEY}",
         "Content-Type": "application/json"
     }
-    payload = {
-        "email": user.email,
-        "firstName": user.firstName,
-        "lastName": user.lastName,
-        "password": user.password
-        }
-    print("new register")
-    
-    print("NEW USER REGISTERED")
-    print(f"First Name: {user.firstName}")
-    print(f"Last Name: {user.lastName}")
-    print(f"Email: {user.email}")
-    print(f"Password: {user.password}")  # ⚠️ only for testing
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=20) as client:
+
+        # 1️⃣ CHECK IF EMAIL ALREADY EXISTS
         try:
-            response = await client.post(EXTERNAL_API_URL, json=payload, headers=headers)
-            response.raise_for_status()
-            print(response.json())
-            return {
-                "message": "User registered successfully. Check server logs."
-            }
-            # return response.json()
-        except httpx.HTTPStatusError as e:
-            logger.error(f"External API error: {e.response.text}")
-            raise HTTPException(status_code=502, detail="External service error")
+            check_response = await client.get(
+                f"{BASE_URL}/crud",
+                headers=HEADERS,
+                params={
+                    "database_id": DATABASE_ID,
+                    "collection_name": "users",
+                    "filters": json.dumps({"email": user.email})
+                }
+            )
+            check_response.raise_for_status()
         except Exception as e:
-            logger.error(f"Connection error: {str(e)}")
-            raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+            logger.error(str(e))
+            raise HTTPException(status_code=503, detail="Auth service unavailable")
+
+        if check_response.json().get("data"):
+            raise HTTPException(
+                status_code=400,
+                detail="Email already registered"
+            )
+
+        # 2️⃣ INSERT NEW USER
+        payload = {
+            "database_id": DATABASE_ID,
+            "collection_name": "users",
+            "documents": [
+                {
+                    "email": user.email,
+                    "firstName": user.firstName,
+                    "lastName": user.lastName,
+                    "password_hash": hash_password(user.password),
+                    "created_at": datetime.utcnow().isoformat()
+                }
+            ]
+        }
+
+        try:
+            insert_response = await client.post(
+                f"{BASE_URL}/crud",
+                headers=HEADERS,
+                json=payload
+            )
+            insert_response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            logger.error(e.response.text)
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail="Failed to register user"
+            )
+
+        return {
+            "success": True,
+            "message": "User registered successfully",
+            "user_id": insert_response.json()["inserted_ids"][0]
+        }
 
 
 

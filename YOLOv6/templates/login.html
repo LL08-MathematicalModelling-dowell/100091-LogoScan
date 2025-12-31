@@ -16,70 +16,88 @@
 
 <body class="min-h-screen flex items-center justify-center text-white">
 
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-8">
+<div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-8">
 
-        <!-- Logo -->
-        <div class="text-center mb-6">
-            <img src="/static/images/dowelllogo.png" class="h-12 mx-auto mb-3" />
-            <h1 class="text-2xl font-bold text-green-400">
-                DoWell UX Living Lab
-            </h1>
-            <p class="text-sm text-gray-400">
-                Sign in to your account
-            </p>
+    <div class="text-center mb-6">
+        <img src="/static/images/dowelllogo.png" class="h-12 mx-auto mb-3" />
+        <h1 class="text-2xl font-bold text-green-400">DoWell UX Living Lab</h1>
+        <p class="text-sm text-gray-400">Sign in to your account</p>
+    </div>
+
+    <form id="loginForm" class="space-y-5">
+
+        <div>
+            <label class="block text-sm mb-1 text-gray-300">Email</label>
+            <input id="email" type="email" required
+                   class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-green-500 focus:outline-none">
         </div>
 
-        <!-- Login Form -->
-        <form class="space-y-5">
+        <div>
+            <label class="block text-sm mb-1 text-gray-300">Password</label>
+            <input id="password" type="password" required
+                   class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-green-500 focus:outline-none">
+        </div>
 
-            <div>
-                <label class="block text-sm mb-1 text-gray-300">Email</label>
-                <input
-                    type="email"
-                    required
-                    class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-green-500 focus:outline-none"
-                    placeholder="you@example.com"
-                />
-            </div>
+        <p id="error" class="text-red-400 text-sm hidden"></p>
 
-            <div>
-                <label class="block text-sm mb-1 text-gray-300">Password</label>
-                <input
-                    type="password"
-                    required
-                    class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-green-500 focus:outline-none"
-                    placeholder="••••••••"
-                />
-            </div>
-
-            <!-- Forgot Password -->
-            <div class="flex justify-end text-sm">
-                <a href="/forgotpassword" class="text-green-400 hover:underline">
-                    Forgot password?
-                </a>
-            </div>
-
-            <button
-                type="submit"
-                class="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-3 rounded-xl transition"
-            >
-                Log In
-            </button>
-        </form>
-
-        <!-- Register -->
-        <p class="text-center text-sm text-gray-400 mt-6">
-            New user?
-            <a href="/register" class="text-green-400 hover:underline font-medium">
-                Create an account
+        <div class="flex justify-end text-sm">
+            <a href="/forgotpassword" class="text-green-400 hover:underline">
+                Forgot password?
             </a>
-        </p>
+        </div>
 
-        <!-- Footer -->
-        <p class="text-xs text-gray-500 text-center mt-6">
-            © 2025 DoWell UX Living Lab
-        </p>
-    </div>
+        <button type="submit"
+                class="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-3 rounded-xl">
+            Log In
+        </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-400 mt-6">
+        New user?
+        <a href="/register" class="text-green-400 hover:underline font-medium">
+            Create an account
+        </a>
+    </p>
+
+    <p class="text-xs text-gray-500 text-center mt-6">
+        © 2025 DoWell UX Living Lab
+    </p>
+</div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const error = document.getElementById("error");
+
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    error.classList.add("hidden");
+
+    try {
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || "Login failed");
+
+        localStorage.setItem("access_token", data.access_token);
+        window.location.href = "/videoupload";
+
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove("hidden");
+    }
+});
+</script>
+
 
 </body>
 </html>

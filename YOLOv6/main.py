@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from api import api as api_router
 from api import predict_human as predict_human_router
 from api import frame_view as frame_view_router
+from api import login as login_router
 import random
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
@@ -44,7 +45,7 @@ app.add_middleware(
 app.include_router(api_router.router)
 app.include_router(predict_human_router.router)
 app.include_router(frame_view_router.router)
-
+app.include_router(login_router.router)
 
 # Serve static files
 # app.mount("/", StaticFiles(directory="static", html=True), name="static")
