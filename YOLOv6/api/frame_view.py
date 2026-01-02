@@ -9,6 +9,7 @@ import numpy as np
 import httpx
 from fastapi.responses import StreamingResponse
 import io
+from api.predict_human import get_video_document
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -25,59 +26,59 @@ EXTERNAL_COLLECTION_NAME = "Videos_Collection"
 
 fs = GridFS(database)
 
-async def get_video_document(video_id: str):
-    headers = {
-        "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
-        "Content-Type": "application/json"
-    }
+# async def get_video_document(video_id: str):
+#     headers = {
+#         "Authorization": f"Api-Key {EXTERNAL_API_KEY}",
+#         "Content-Type": "application/json"
+#     }
     
-    params = {
-        "database_id": EXTERNAL_DATABASE_ID,
-        "collection_name": EXTERNAL_COLLECTION_NAME,
-        "filters": {"data"}
-    }
+#     params = {
+#         "database_id": EXTERNAL_DATABASE_ID,
+#         "collection_name": EXTERNAL_COLLECTION_NAME,
+#         "filters": {"data"}
+#     }
     
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                EXTERNAL_API_URL,
-                headers=headers,
-                params=params
-            )
-            response.raise_for_status()
-            data = response.json()
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             response = await client.get(
+#                 EXTERNAL_API_URL,
+#                 headers=headers,
+#                 params=params
+#             )
+#             response.raise_for_status()
+#             data = response.json()
             
-            # Clean the video_id by stripping quotes
-            video_id = video_id.strip('"\'')  # <-- FIX HERE
+#             # Clean the video_id by stripping quotes
+#             video_id = video_id.strip('"\'')  # <-- FIX HERE
             
-            print(f"Searching for video_id: '{video_id}'")  # Debug
-            print("Available IDs:", [item["_id"] for item in data.get("data", [])])  # Debug
+#             print(f"Searching for video_id: '{video_id}'")  # Debug
+#             print("Available IDs:", [item["_id"] for item in data.get("data", [])])  # Debug
 
-            if not data.get("success"):
-                raise HTTPException(status_code=404, detail="External API reported failure")
+#             if not data.get("success"):
+#                 raise HTTPException(status_code=404, detail="External API reported failure")
                 
-            if not data.get("data"):
-                raise HTTPException(status_code=404, detail="No video data found in response")
+#             if not data.get("data"):
+#                 raise HTTPException(status_code=404, detail="No video data found in response")
             
-            # Find matching ID (now with cleaned video_id)
-            video_doc = next((item for item in data["data"] if item["_id"] == video_id), None)
+#             # Find matching ID (now with cleaned video_id)
+#             video_doc = next((item for item in data["data"] if item["_id"] == video_id), None)
             
-            if not video_doc:
-                available_ids = [item["_id"] for item in data["data"]]
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Video ID '{video_id}' not found. Available IDs: {available_ids}"
-                )
+#             if not video_doc:
+#                 available_ids = [item["_id"] for item in data["data"]]
+#                 raise HTTPException(
+#                     status_code=404,
+#                     detail=f"Video ID '{video_id}' not found. Available IDs: {available_ids}"
+#                 )
            
             
-            return video_doc
+#             return video_doc
             
-    except httpx.HTTPStatusError as e:
-        logger.error(f"External API error: {e.response.text}")
-        raise HTTPException(status_code=502, detail="External service error")
-    except Exception as e:
-        logger.error(f"Connection error: {str(e)}")
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+#     except httpx.HTTPStatusError as e:
+#         logger.error(f"External API error: {e.response.text}")
+#         raise HTTPException(status_code=502, detail="External service error")
+#     except Exception as e:
+#         logger.error(f"Connection error: {str(e)}")
+#         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     
 async def get_all_video_document():
     headers = {
