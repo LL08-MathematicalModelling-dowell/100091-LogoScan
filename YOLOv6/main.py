@@ -5,6 +5,7 @@ from api import api as api_router
 from api import predict_human as predict_human_router
 from api import frame_view as frame_view_router
 from api import login as login_router
+from api import youtube_live_api as youtube_live_router
 import random
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
@@ -25,7 +26,7 @@ logging.getLogger("uvicorn.access").setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-app = FastAPI()
+app = FastAPI(title="Video Processing API")
 
 
 # Tell FastAPI where HTML templates are
@@ -42,10 +43,11 @@ app.add_middleware(
 
 
 
-app.include_router(api_router.router)
-app.include_router(predict_human_router.router)
-app.include_router(frame_view_router.router)
-app.include_router(login_router.router)
+app.include_router(api_router.router, tags=["Upload Video"])
+app.include_router(predict_human_router.router, tags=["Prediction"])
+app.include_router(frame_view_router.router, tags=["Frame View"])
+app.include_router(login_router.router, tags=["Authentication"])
+app.include_router(youtube_live_router.router, tags=["YouTube Live Stream"])
 
 # Serve static files
 # app.mount("/", StaticFiles(directory="static", html=True), name="static")
