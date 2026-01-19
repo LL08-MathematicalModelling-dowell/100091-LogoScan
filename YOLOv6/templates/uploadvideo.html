@@ -203,6 +203,39 @@
     50%{opacity:.4;}
     }
 
+
+    /* Pagination base */
+.page-btn {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #000000; /* gray-300 */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.page-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* Active page */
+.page-btn.active {
+  background-color: #34d399; /* emerald-400 */
+  color: #020617;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+/* Disabled */
+.page-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
     </style>
 </head>
 <!-- <body class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8"> -->
@@ -247,7 +280,7 @@
                 <div id="taskIdDisplay" class="hidden mb-4 p-3 bg-indigo-100 rounded-lg">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-indigo-700 font-medium">Task ID:</span>
-                        <span id="currentTaskId" class="font-mono text-sm bg-white px-2 py-1 rounded"></span>
+                        <span id="currentTaskId" class="font-mono text-sm bg-white text-emerald-400 px-2 py-1 rounded"></span>
                     </div>
                 </div>
 
@@ -307,19 +340,19 @@
                     <div id="detailedProgress" class="space-y-3 bg-gray-50 p-4 rounded-lg">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Frames Processed:</span>
-                            <span id="framesProcessed" class="font-medium">0</span>
+                            <span id="framesProcessed" class="font-medium text-emerald-400">0</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Frames Extracted:</span>
-                            <span id="framesExtracted" class="font-medium">0</span>
+                            <span id="framesExtracted" class="font-medium text-emerald-400">0</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Reduction:</span>
-                            <span id="reductionDisplay" class="font-medium">0%</span>
+                            <span id="reductionDisplay" class="font-medium text-emerald-400">0%</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Time Elapsed:</span>
-                            <span id="timeElapsed" class="font-medium">0s</span>
+                            <span id="timeElapsed" class="font-medium text-emerald-400">0s</span>
                         </div>
                     </div>
                 </div>
@@ -388,10 +421,10 @@
                         <div id="detectionResults" class="hidden mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
                             <h3 class="text-lg font-semibold text-green-700 mb-3">Detection Summary</h3>
                             <div class="grid grid-cols-2 gap-3 text-sm">
-                                <p>Total Frames: <span id="detectionTotalFrames"></span></p>
-                                <p>Processed Frames: <span id="detectionProcessedFrames"></span></p>
-                                <p>Detected Objects: <span id="detectionObjectsCount"></span></p>
-                                <p>Detection Time: <span id="detectionTime"></span></p>
+                                <p>Total Frames: <span id="detectionTotalFrames" class="font-medium text-emerald-400 "></span></p>
+                                <p>Processed Frames: <span id="detectionProcessedFrames " class="font-medium text-emerald-400"></span></p>
+                                <p>Detected Objects: <span id="detectionObjectsCount"  class="font-medium text-emerald-400"></span></p>
+                                <p>Detection Time: <span id="detectionTime"  class="font-medium text-emerald-400"></span></p>
                             </div>
                         </div>
                     </div>

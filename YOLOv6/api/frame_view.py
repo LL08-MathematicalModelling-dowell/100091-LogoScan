@@ -132,10 +132,16 @@ async def get_all_video_document():
 
 @router.get("/get_video_count")
 async def get_video_count():
-    return {
-        "developers_online": await get_all_video_document(),
-        "github_stars": 2847
-    }
+    try :
+        return {
+            "developers_online": await get_all_video_document(),
+            "github_stars": 2847
+        }
+    except Exception as e: 
+        return {
+            "developers_online": "Error",
+            "github_stars": "Error"
+        }
 
 @router.get("/frame_with_boxes/{video_id}/{frame_number}")
 async def get_frame_with_boxes(video_id: str, frame_number: int):
