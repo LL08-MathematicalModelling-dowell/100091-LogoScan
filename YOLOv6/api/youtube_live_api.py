@@ -449,7 +449,7 @@ async def youtube_live_detect(websocket: WebSocket):
     try:
         youtube_url = websocket.query_params.get("youtube_url")
         logger.info(f"Received URL: {youtube_url}")
-        process_every_n_frames = int(websocket.query_params.get("process_every_n_frames", 5))
+        process_every_n_frames = int(websocket.query_params.get("process_every_n_frames", 2))
         
         if not youtube_url:
             await websocket.send_json({

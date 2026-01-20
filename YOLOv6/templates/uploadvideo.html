@@ -394,8 +394,8 @@
                                 <p><span class="font-medium">Extracted Frames:</span> <span id="extractedFrames"></span></p>
                                 <p><span class="font-medium">Reduction:</span> <span id="reductionPercentage"></span>%</p>
                                 <p><span class="font-medium">Video ID:</span> <span id="videoId" class="font-mono"></span></p>
-                                <p><span class="font-medium">Processing Time:</span> <span id="processingTime" class="font-medium text-emerald-600">0s</span>
-                                <p><span class="font-medium">Detection Status:</span> <span id="detectionStatus" class="font-medium">Not run</span><span id="detectionStatusIcon" class="ml-2 hidden">✅</span></p></p>
+                                <p><span class="font-medium">Processing Time:</span> <span id="processingTime" class="font-medium text-emerald-600">0s</span></p>
+                                <p><span class="font-medium">Detection Status:</span> <span id="detectionStatus" class="font-medium">Not run</span><span id="detectionStatusIcon" class="ml-2 hidden">✅</span></p>
                             </div>
                             
                             <div class="flex gap-2">
@@ -422,7 +422,7 @@
                             <h3 class="text-lg font-semibold text-green-700 mb-3">Detection Summary</h3>
                             <div class="grid grid-cols-2 gap-3 text-sm">
                                 <p>Total Frames: <span id="detectionTotalFrames" class="font-medium text-emerald-400 "></span></p>
-                                <p>Processed Frames: <span id="detectionProcessedFrames " class="font-medium text-emerald-400"></span></p>
+                                <p>Processed Frames: <span id="detectionProcessedFrames" class="font-medium text-emerald-400"></span></p>
                                 <p>Detected Objects: <span id="detectionObjectsCount"  class="font-medium text-emerald-400"></span></p>
                                 <p>Detection Time: <span id="detectionTime"  class="font-medium text-emerald-400"></span></p>
                             </div>
@@ -1329,7 +1329,7 @@
             // 33ms = ~30 FPS, 16ms = ~60 FPS
             setTimeout(() => {
                 processFrameBuffer();
-            }, 33);
+            }, 16);
         }
 
 
