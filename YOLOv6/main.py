@@ -96,6 +96,15 @@ def say_hello(request: Request):
     return templates.TemplateResponse("forgotpassword.html", {"request": request})
 
 
+@app.get("/test")
+def say_hello(request: Request):
+    return templates.TemplateResponse("test.html", {"request": request})
+
+@app.get("/test1")
+def say_hello(request: Request):
+    return templates.TemplateResponse("test1.html", {"request": request})
+
+
 @app.get("/register")
 def say_hello(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
