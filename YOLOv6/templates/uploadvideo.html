@@ -6,6 +6,15 @@
     <title>Video Processing Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+
+ :root {
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --gray-bg: #f8fafc;
+      --gray-border: #e5e7eb;
+      --gray-text: #6b7280;
+    }
+
         /* Custom animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -18,10 +27,123 @@
         /* ================= TABS ================= */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+           .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+
+
+     * {
+      box-sizing: border-box;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--gray-bg);
+      color: #111827;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+
+    nav {
+      display: flex;
+      gap: 24px;
+      font-size: 14px;
+      color: var(--gray-text);
+    }
+
+    nav a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+
+    .hero {
+      text-align: center;
+      margin-top: 60px;
+      padding: 0 24px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .hero p {
+      max-width: 600px;
+      margin: auto;
+      font-size: 15px;
+      color: var(--gray-text);
+    }
+
+       .media-tabs {
+      display: inline-flex;
+      background: #eef2ff;
+      border-radius: 999px;
+      padding: 4px;
+      margin-top: 15px;
+    }
+
+    .media-tabs button {
+      padding: 10px 22px;
+      border: none;
+      background: transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--gray-text);
+    }
+
+    .media-tabs .active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+ .card {
+  max-width: 1000px;
+  margin: 40px auto;
+  background: #f8fafc; 
+  border-radius: 20px;
+  padding: 32px;
+
+  box-shadow: 0 30px 60px rgba(15,23,42,.15);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 20px;
+      font-weight: 700;
+      color : #000;
+    
+    }
+
+
+        header {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
         .tab-button {
-        padding: 14px 28px;
-        font-weight: 600;
+        padding: 14px 20px;
+        font-weight: 500;
         color: #9ca3af;
         border-bottom: 3px solid transparent;
         transition: all 0.3s ease;
@@ -236,24 +358,127 @@
 }
 
 
+
+
+
+
+    /* ---------- UPLOAD ---------- */
+    .drop-zone {
+      border: 2px dashed var(--gray-border);
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .drop-zone p {
+      margin: 6px 0;
+      color: var(--gray-text);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    /* ---------- PREVIEW ---------- */
+    .preview {
+      margin-top: 16px;
+    }
+
+   video {
+  width: 50%;
+  margin: 0 auto;
+  display: block;
+  border-radius: 12px;
+  background: #000;
+}
+
+
+    .file-meta {
+      font-size: 10px;
+      color: var(--gray-text);
+      margin-top: 8px;
+    }
+
+    .url-input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--gray-border);
+      font-size: 15px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--gray-text);
+      margin-top: 8px;
+    }
+
+    .cta {
+      margin-top: 24px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cta:hover {
+      background: var(--blue-dark);
+    }
+
+    .hidden {
+      display: none;
+    }
     </style>
 </head>
 <!-- <body class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8"> -->
-   <body class="min-h-screen bg-gradient-to-br from-[#050B1E] via-[#0B1437] to-[#020617] text-gray-100">
 
+<body>
+<header>
+  <div class="flex items-center gap-4">
 
-    <!-- <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden"> -->
-        <div class="max-w-6xl mx-auto mt-10 mb-16 backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+    <!-- Back Button -->
+    <button onclick="history.back()"
+            class="flex items-center gap-2
+                   text-sm font-medium
+                   text-gray-500
+                   hover:text-gray-900
+                   transition">
+      ← Back
+    </button>
 
-   <!-- Header -->
-<div class="px-6 py-6 border-b border-white/10">
-  <h2 class="text-2xl font-bold">Video Processing Dashboard</h2>
-  <p class="text-sm text-gray-400">Upload videos or analyze live streams</p>
-</div>
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <img src="/static/images/dowelllogo.png" class="h-9" alt="Logo">
+      <span class="text-lg font-semibold text-green-400">
+        DoWell UX Living Lab
+      </span>
+    </div>
 
-        <!-- Tab Navigation -->
-        <div class="flex border-b border-white-200">
-            <div class="flex">
+  </div>
+
+  <nav>
+    <a href="#">Products</a>
+    <a href="#">Demo</a>
+    <a href="#">Pricing</a>
+    <a href="#">Resources</a>
+  </nav>
+</header>
+
+       
+<section class="hero">
+  <h1>Detect AI-generated videos at scale</h1>
+  <p>
+    Our AI video detector automatically detects videos from popular AI generators.
+    No watermarks needed.
+  </p>
+            <!-- Tab Navigation -->
+            <div class="media-tabs">
                 <button class="tab-button active" onclick="switchTab('upload')">
                     📤 Upload Video
                 </button>
@@ -261,43 +486,162 @@
                     🎥 Live Stream
                 </button>
             </div>
-        </div>
+</section>
 
-        <!-- Main Content -->
-        <div class="p-6">
-            <!-- Upload Tab Content -->
-            <div id="uploadTab" class="tab-content active">
+   <body class="min-h-screen bg-gradient-to-br from-[#050B1E] via-[#0B1437] to-[#020617] text-gray-100">
+
+
+
+    <!-- <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden"> -->
+        <!-- <div class="max-w-6xl mx-auto mt-10 mb-16 backdrop-blur-xl bg-white/10 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-fadeIn"> -->
+
+
+
+            
+
+<section class="card">
+ <div class="flex items-center justify-between mb-6">
+  <h2 class="text-xl font-semibold text-gray-900">
+    Analyze a video
+  </h2>
+
+  <button
+    id="cancelBtn"
+    onclick="cancelProcessing()"
+    class="hidden
+           bg-red-600 text-white
+           px-4 py-2
+           rounded-lg text-sm font-medium
+           hover:bg-red-700 transition
+           leading-none">
+    Cancel
+  </button>
+</div>
+    <!-- <div class="w-full max-w-3xl bg-white rounded-2xl p-8 shadow"> -->
+
+
+
+    <div id="uploadTab" class="tab-content active ">
+
+          <!-- UPLOAD FORM -->
+  <div id="uploadForm" >
+
+    <!-- DROP ZONE -->
+    <label
+      for="videoFile"
+      class="block w-full
+             border-2 border-dashed border-slate-300
+             rounded-2xl px-10 py-8
+             text-center cursor-pointer
+             hover:border-blue-300 transition">
+
+      <p class="text-lg font-semibold text-slate-600">
+        Drag and drop your file here
+      </p>
+
+      <div
+        class="mt-6 inline-flex items-center gap-2
+               bg-blue-600 hover:bg-blue-700
+               text-white font-semibold
+               px-8 py-3 rounded-full transition">
+
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-5"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12V4m0 0l-4 4m4-4l4 4" />
+        </svg>
+
+        Upload File
+      </div>
+    </label>
+
+    <input
+      type="file"
+      id="videoFile"
+      accept="video/*"
+      class="hidden"
+      onchange="handleVideoSelect(this)"
+    />
+
+    <!-- PREVIEW -->
+<!-- PREVIEW -->
+<div id="videoPreview" class="hidden mt-6 flex justify-center">
+  <video id="videoPlayer"
+         controls
+         class="w-full max-w-md
+                h-48
+                rounded-lg
+                bg-black
+                object-contain">
+  </video>
+
+</div>
+  <p id="fileInfo" class="mt-2 text-xs text-slate-500 text-center"></p>
+
+
+
+    <!-- ACTION BUTTONS -->
+            <div class="flex gap-3 mt-6">
+                <input
+        type="range"
+        id="similarityThreshold"
+        min="0.5"
+        max="1.0"
+        step="0.05"
+        value="0.95"
+        class="hidden"
+        />
+<button
+  id="uploadBtn"
+  onclick="console.log('CLICKED'); uploadAndProcessVideo();"
+  class="mt-6 mx-auto block
+         px-5 py-2.5 rounded-md
+         bg-[var(--blue)] hover:bg-[var(--blue-dark)]
+         text-white text-sm font-semibold">
+  Upload & Process
+</button>
+
+
+
+
+     
+    </div>
+
+  </div>
+
                 <!-- Upload Section -->
              
-                    <div class="mb-8 rounded-xl p-6 animate-fadeIn
-            bg-gradient-to-br 
-            from-[#071A2E] via-[#0A2540] to-[#020617]
-            text-white shadow-lg">
-
-                    <h2 class="text-xl sm:text-2xl font-semibold text-emerald-700 mb-4">Upload Your Video</h2>
+        <div id="taskIdDisplay1"
+             class="hidden rounded-2xl border border-white/10
+            bg-gradient-to-br from-[#0B1437] to-[#050B1E]
+            shadow-xl p-6 space-y-6  ">
                 
                 <!-- Task ID Display -->
-                <div id="taskIdDisplay" class="hidden mb-4 p-3 bg-indigo-100 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-indigo-700 font-medium">Task ID:</span>
-                        <span id="currentTaskId" class="font-mono text-sm bg-white text-emerald-400 px-2 py-1 rounded"></span>
-                    </div>
+                <div id="taskIdDisplay" class="hidden flex items-center justify-between
+              bg-indigo-50/90 text-indigo-700
+              px-4 py-2 rounded-lg text-sm">
+                   
+                        <span class="font-medium">Task ID:</span>
+                        <span id="currentTaskId" class="font-mono bg-white px-2 py-1 rounded text-emerald-500"></span>
+                  
                 </div>
 
                 <!-- Progress Container -->
-                <div id="progressContainer" class="hidden">
+                <div id="progressContainer" class="hidden space-y-6">
                     <!-- Overall Progress -->
-                    <div class="mb-6">
-                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-300 mb-1">
                             <span id="progressStage">Starting...</span>
                             <span id="progressPercent">0%</span>
                         </div>
-                        <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-                            <div id="overallProgressBar" class="h-full stage-uploading transition-all duration-300" style="width: 0%"></div>
+
+                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
+                            <div id="overallProgressBar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all" style="width: 0%"></div>
                         </div>
-                        <div id="progressMessage" class="text-sm text-gray-600 mt-2"></div>
+                        
                     </div>
                     
+                    <p id="progressMessage" class="mt-2 text-xs text-gray-400"></p>
                     <!-- Stage Indicator -->
                     <div class="mb-6">
                         <div class="flex justify-between mb-2">
@@ -337,265 +681,188 @@
                     </div>
                     
                     <!-- Detailed Progress -->
-                    <div id="detailedProgress" class="space-y-3 bg-gray-50 p-4 rounded-lg">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Frames Processed:</span>
-                            <span id="framesProcessed" class="font-medium text-emerald-400">0</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Frames Extracted:</span>
-                            <span id="framesExtracted" class="font-medium text-emerald-400">0</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Reduction:</span>
-                            <span id="reductionDisplay" class="font-medium text-emerald-400">0%</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Time Elapsed:</span>
-                            <span id="timeElapsed" class="font-medium text-emerald-400">0s</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upload Form -->
-                <div id="uploadForm">
-                    <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
-                        <div class="w-full">
-                            <input type="file" id="videoFile" accept="video/*" class="file:mr-4 file:py-3 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200 w-full">
-                            <div class="flex items-center gap-3 mt-3">
-                                <span class="text-sm text-gray-600">Similarity Threshold:</span>
-                                <input type="range" id="similarityThreshold" min="0.5" max="1.0" step="0.05" value="0.95" class="w-32">
-                                <span id="thresholdValue" class="text-sm font-medium text-indigo-700">0.95</span>
+                    <div id="detailedProgress" >
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4
+                              bg-emerald-200/5 rounded-xl p-4 text-xs">
+                            <div>
+                                <p class="text-gray-400">Frames Processed</p>
+                                <p id="framesProcessed" class="text-emerald-400 font-semibold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Frames Extracted</p>
+                                <p id="framesExtracted" class="text-emerald-400 font-semibold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Reduction</p>
+                                <p id="reductionDisplay" class="text-emerald-400 font-semibold">0%</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Elapsed</p>
+                                <p id="timeElapsed" class="text-emerald-400 font-semibold">0s</p>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="uploadAndProcessVideo()" class="bg-emerald-600 text-black px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="uploadBtn">
-                                Upload & Process
-                            </button>
-                            <button onclick="cancelProcessing()" id="cancelBtn" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-all hidden">
-                                Cancel
-                            </button>
-                        </div>
                     </div>
                 </div>
 
+               
+  
                 <!-- Status Messages -->
                 <div id="uploadStatus" class="p-4 rounded-lg hidden mb-6"></div>
 
                     <!-- Processing Results -->
-                    <div id="processingResults" class="hidden">
-                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-6">
-                            <h3 class="text-lg font-semibold text-emerald-700 mb-3">Processing Complete!</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
-                                <p><span class="font-medium">Filename:</span> <span id="filename"></span></p>
-                                <p><span class="font-medium">Duration:</span> <span id="duration"></span> seconds</p>
-                                <p><span class="font-medium">FPS:</span> <span id="fps"></span></p>
-                                <p><span class="font-medium">Total Frames:</span> <span id="totalFrames"></span></p>
-                                <p><span class="font-medium">Extracted Frames:</span> <span id="extractedFrames"></span></p>
-                                <p><span class="font-medium">Reduction:</span> <span id="reductionPercentage"></span>%</p>
-                                <p><span class="font-medium">Video ID:</span> <span id="videoId" class="font-mono"></span></p>
-                                <p><span class="font-medium">Processing Time:</span> <span id="processingTime" class="font-medium text-emerald-600">0s</span></p>
-                                <p><span class="font-medium">Detection Status:</span> <span id="detectionStatus" class="font-medium">Not run</span><span id="detectionStatusIcon" class="ml-2 hidden">✅</span></p>
+
+                <div id="processingResults" class="hidden space-y-6">
+
+                <!-- Summary Card -->
+                <!-- <div class="rounded-2xl border border-blue-200
+                            bg-gradient-to-br from-blue-50 to-white
+                            p-6 shadow-sm"> -->
+
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-5">
+                    <h3 class="text-lg font-semibold text-blue-700">
+                        Processing Complete
+                    </h3>
+
+                    <span class="inline-flex items-center gap-2
+                                text-xs font-medium
+                                text-blue-700 bg-blue-100
+                                px-3 py-1 rounded-full">
+                        ✅ Success
+                    </span>
+                    </div>
+
+                      <!-- Metrics -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4
+                              bg-emerald-200/5 rounded-xl p-4 text-xs">
+                            <div>
+                                <p class="text-gray-400">Filename</p>
+                                <p id="filename" class="text-emerald-400 font-semibold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Duration</p>
+                                <p id="duration" class="text-emerald-400 font-semibold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">FPS</p>
+                                <p id="fps" class="text-emerald-400 font-semibold">0%</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Total Frames</p>
+                                <p id="totalFrames" class="text-emerald-400 font-semibold">0s</p>
+                            </div>
+                                 <div>
+                                <p class="text-gray-400">Extracted Frames</p>
+                                <p id="extractedFrames" class="text-emerald-400 font-semibold">0s</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Reduction</p>
+                                <p id="reductionPercentage" class="text-emerald-400 font-semibold">0s</p>
+                            </div>
+                              <div>
+                                <p class="text-gray-400">Processing Time</p>
+                                <p id="processingTime" class="text-emerald-400 font-semibold">0s</p>
+                            </div>
+                              <div>
+                                <p class="text-gray-400">Video ID</p>
+                                <p id="videoId" class="text-emerald-400 font-semibold">0s</p>
                             </div>
                             
-                            <div class="flex gap-2">
-                                <button onclick="runObjectDetection()" id="detectBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-all">
-                                    Run Object Detection
-                                </button>
-                                <button onclick="showFrames()" id="showFramesBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-all">
-                                    View Extracted Frames
-                                </button>
-                            </div>
                         </div>
 
-                        <!-- Detection Status -->
-                        <div id="detectStatus" class="hidden mt-4"></div>
+                  
 
-                        <!-- Detection Loader -->
-                        <div id="detectLoader" class="hidden mt-4 flex items-center gap-2">
-                            <div class="spinner"></div>
-                            <span class="text-sm text-gray-600">Running object detection…</span>
-                        </div>
-
-                        <!-- Detection Results -->
-                        <div id="detectionResults" class="hidden mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                            <h3 class="text-lg font-semibold text-green-700 mb-3">Detection Summary</h3>
-                            <div class="grid grid-cols-2 gap-3 text-sm">
-                                <p>Total Frames: <span id="detectionTotalFrames" class="font-medium text-emerald-400 "></span></p>
-                                <p>Processed Frames: <span id="detectionProcessedFrames" class="font-medium text-emerald-400"></span></p>
-                                <p>Detected Objects: <span id="detectionObjectsCount"  class="font-medium text-emerald-400"></span></p>
-                                <p>Detection Time: <span id="detectionTime"  class="font-medium text-emerald-400"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        </div>
-        
-        <!-- Live Stream Tab -->
-        <div id="livestreamTab" class="tab-content">
-            
-            
-            <div class="mb-8 rounded-xl p-6 animate-fadeIn 
-            bg-gradient-to-br 
-            from-[#071A2E] via-[#0A2540] to-[#020617] 
-            text-white shadow-lg">
-                <h2 class="text-xl font-semibold text-purple-700 mb-4">YouTube Live Stream Detection</h2>
-                
-                <div id="liveStreamForm">
-                    <div class="space-y-4 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">YouTube Live Stream URL:</label>
-                            <input type="text" id="youtubeUrl"
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/10 text-white mb-4" />
-
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Process Every N Frames: <span id="frameIntervalValue" class="text-purple-700 font-semibold">5</span></label>
-                            <input type="range" id="frameInterval" min="1" max="30" value="5" class="w-full" onchange="document.getElementById('frameIntervalValue').textContent = this.value">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="startLiveStream()" id="startStreamBtn" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700">🚀 Start Detection</button>
-                        <button onclick="stopLiveStream()" id="stopStreamBtn" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 hidden">🛑 Stop</button>
-                    </div>
-                </div>
-
-                <div id="streamStatusContainer" class="hidden mt-6">
-                    <div class="bg-white rounded-lg p-4 mb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm font-medium">Connection:</span>
-                            <span id="connectionStatus" class="px-3 py-1 rounded-full text-sm font-medium bg-gray-200">Disconnected</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium">Stream:</span>
-                            <span id="streamStatus" class="text-sm text-gray-600">Not Started</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-
-  <!-- Frames -->
-  <div class="p-4 rounded-xl
-              bg-gradient-to-br from-[#0B1437] to-[#050B1E]
-              border border-emerald-400/20
-              text-white
-              flex flex-col items-center justify-center">
-
-    <div id="liveFramesCount"
-         class="font-bold leading-none
-                text-xl sm:text-2xl md:text-3xl
-                text-emerald-300">
-      0
-    </div>
-
-    <div class="mt-1 text-[10px] sm:text-xs md:text-sm
-                tracking-wide text-gray-400 uppercase">
-      Frames
-    </div>
-  </div>
-
-  <!-- Total Detections -->
-  <div class="p-4 rounded-xl
-              bg-gradient-to-br from-[#0B1437] to-[#050B1E]
-              border border-emerald-400/20
-              text-white
-              flex flex-col items-center justify-center">
-
-    <div id="liveDetectionsCount"
-         class="font-bold leading-none
-                text-xl sm:text-2xl md:text-3xl
-                text-emerald-300">
-      0
-    </div>
-
-    <div class="mt-1 text-[10px] sm:text-xs md:text-sm
-                tracking-wide text-gray-400 uppercase text-center">
-      Total Detections
-    </div>
-  </div>
-
-  <!-- Current -->
-  <div class="p-4 rounded-xl
-              bg-gradient-to-br from-[#0B1437] to-[#050B1E]
-              border border-blue-400/20
-              text-white
-              flex flex-col items-center justify-center">
-
-    <div id="currentDetectionsCount"
-         class="font-bold leading-none
-                text-xl sm:text-2xl md:text-3xl
-                text-blue-300">
-      0
-    </div>
-
-    <div class="mt-1 text-[10px] sm:text-xs md:text-sm
-                tracking-wide text-gray-400 uppercase text-center">
-      Current
-    </div>
-  </div>
-
-</div>
-
-                    </div>
-                </div>
-
-                <div id="liveVideoContainer" class="hidden mb-6">
-                    <div class="bg-white rounded-lg p-4">
-                        <div class="flex items-center mb-4">
-                            <span class="live-indicator"></span>
-                            <h3 class="text-lg font-semibold">Live Video Feed</h3>
-                        </div>
-                        
-                        <!-- Video Display -->
-                        <div class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
-                            <img id="liveVideoFrame" 
-                                src="" 
-                                alt="Live Stream" 
-                                class="w-full h-full object-contain">
+                    <!-- Detection Status -->
+                    <div class="mt-5 flex items-center gap-3 text-sm">
+                    <span class="text-gray-500">Detection:</span>
+                    <span id="detectionStatus"
+                            class="inline-flex items-center gap-2
+                                text-xs font-medium
+                                text-blue-700 bg-blue-100
+                                px-3 py-1 rounded-full">
                             
-                            <!-- Overlay with current detections -->
-                            <div class="absolute top-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
-                                <div class="text-sm">
-                                    Frame: <span id="overlayFrameNumber" class="font-bold">0</span> | 
-                                    Detections: <span id="overlayDetectionCount" class="font-bold text-green-400">0</span>
-                                </div>
-                            </div>
-                            
-                            <!-- FPS Counter -->
-                            <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
-                                <div class="text-sm">
-                                    FPS: <span id="streamFPS" class="font-bold text-blue-400">0</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Detection Details -->
-                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
-                            <h4 class="font-semibold mb-2">Current Frame Detections:</h4>
-                            <div id="currentFrameDetections" class="flex flex-wrap gap-2">
-                                <span class="text-gray-500 text-sm">No detections yet...</span>
-                            </div>
-                        </div>
+                        Not run
+                    </span>
+                    <span id="detectionStatusIcon" class="hidden">✅</span>
                     </div>
+
+                    <!-- Actions -->
+                    <div class="mt-6 flex flex-wrap gap-3">
+                    <button
+                        id="detectBtn"
+                        onclick="runObjectDetection()"
+                        class="bg-blue-600 text-white
+                            px-6 py-2.5 rounded-lg
+                            text-sm font-semibold
+                            hover:bg-blue-700 transition">
+                        Run Object Detection
+                    </button>
+
+                    <button
+                        id="showFramesBtn"
+                        onclick="showFrames()"
+                        class="hidden bg-slate-700 text-white
+                            px-6 py-2.5 rounded-lg
+                            text-sm font-semibold
+                            hover:bg-slate-800 transition">
+                        View Extracted Frames
+                    </button>
+                    </div>
+
+                <!-- </div> -->
+
+                <!-- Detection Status Message -->
+                <div id="detectStatus" class="hidden text-sm"></div>
+
+                <!-- Detection Loader -->
+                <div id="detectLoader"
+                    class="hidden flex items-center gap-3
+                            bg-white border rounded-lg p-4 shadow-sm">
+                    <div class="spinner"></div>
+                    <span class="text-sm text-gray-600">
+                    Running object detection…
+                    </span>
                 </div>
 
-                <div id="liveDetectionsContainer" class="hidden">
-                    <div class="bg-white rounded-lg p-4">
-                        <div class="flex items-center mb-4">
-                            <span class="live-indicator"></span>
-                            <h3 class="text-lg font-semibold">Detection History</h3>
-                        </div>
-                        <div id="liveDetectionsList" class="space-y-3 max-h-96 overflow-y-auto">
-                            <div class="text-center py-8 text-gray-500">Waiting for detections...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <!-- Detection Results -->
+                <div id="detectionResults"
+                    class="hidden ">
 
-        <!-- Frame Gallery -->
+                    <h3 class="text-md font-semibold text-blue-700 mb-4">
+                    Detection Summary
+                    </h3>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-400 text-xs">Total Frames</p>
+                        <p id="detectionTotalFrames" class="font-semibold text-blue-600"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-400 text-xs">Processed Frames</p>
+                        <p id="detectionProcessedFrames" class="font-semibold text-blue-600"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-400 text-xs">Detected Objects</p>
+                        <p id="detectionObjectsCount" class="font-semibold text-blue-600"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-400 text-xs">Detection Time</p>
+                        <p id="detectionTime" class="font-semibold text-blue-600"></p>
+                    </div>
+                    </div>
+
+                </div>
+
+                </div>
+
+
+         </div>
+
+
+                 <!-- Frame Gallery -->
         <div id="frameGallery" class="hidden bg-gray-50 rounded-xl p-6 animate-fadeIn">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                 <h2 class="text-xl sm:text-2xl font-semibold text-gray-700">Extracted Frames</h2>
@@ -612,9 +879,20 @@
             <!-- Class Filter Section (hidden by default) -->
             <div id="classFilterContainer" class="hidden">
                 <h3 class="text-md font-medium text-gray-700 mb-2">Filter by Class:</h3>
-                <div id="classFilter" class="class-filter">
-                    <button onclick="filterByClass('all')" class="class-filter-btn all-btn active">All Classes</button>
+                <div id="classFilter" class="flex flex-wrap gap-2">
+                    <!-- <button onclick="filterByClass('all')" class="class-filter-btn all-btn active">All Classes</button> -->
                     <!-- Dynamic class buttons will be added here -->
+                     
+                    <button
+                    onclick="filterByClass('all')"
+                    class="px-3 py-1.5 rounded-md
+                            text-xs font-semibold
+                            bg-emerald-500/20 text-emerald-400
+                            border border-emerald-500/30
+                            hover:bg-emerald-500/30
+                            transition">
+                    All
+                    </button>
                 </div>
             </div>
             
@@ -637,6 +915,310 @@
                 No frames to display with the current filter settings.
             </div>
         </div>
+
+
+
+
+        <!-- Full Frame View Section -->
+<div id="fullFrameSection" class="hidden mt-6">
+
+  <div class="flex justify-between items-center mb-2">
+    <h3 class="text-sm font-semibold text-gray-700">
+      Selected Frame
+    </h3>
+
+    <button onclick="closeFullFrame()"
+            class="text-xs text-gray-500 hover:text-gray-900">
+      Close
+    </button>
+  </div>
+
+  <div class="relative rounded-xl overflow-hidden border border-slate-200 bg-black">
+    <img id="fullFrameImage"
+         src=""
+         alt="Full frame"
+         class="w-full max-h-[70vh] object-contain cursor-zoom-in"
+         onclick="openModalFromFullFrame()" />
+  </div>
+</div>
+
+
+
+
+    </div>
+
+          <!-- Live Stream Tab -->
+        <div id="livestreamTab" class="tab-content">
+            
+            
+            <div class="mb-8 rounded-xl p-6 animate-fadeIn 
+            bg-gradient-to-br 
+            from-[#071A2E] via-[#0A2540] to-[#020617] 
+            text-white shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+
+                    <h2 class="text-xl font-semibold text-purple-700">
+                        YouTube Live Stream Detection
+                    </h2>
+
+                    <!-- <button id="stopStreamBtn"
+                            class="px-3 py-1.5 rounded-md
+                                    text-sm font-medium
+                                    text-white
+                                    bg-red-600 hover:bg-red-700
+                                    transition">
+                        Stop
+                    </button> -->
+
+                    </div>
+
+             <div id="liveStreamForm" class="mb-6">
+
+  <!-- Input -->
+  <div class="space-y-3 mb-4">
+
+    <div>
+      <label class="block text-xs font-medium text-gray-400 mb-1">
+        YouTube Live Stream URL
+      </label>
+
+      <input
+        type="text"
+        id="youtubeUrl"
+        placeholder="https://www.youtube.com/watch?v=..."
+        class="w-full px-3 py-2 rounded-md
+               bg-[#050B1E]
+               border border-slate-700/60
+               text-sm text-white
+               placeholder:text-gray-500
+               focus:outline-none focus:border-purple-500/60" />
+    </div>
+
+    <!-- Hidden advanced control (kept clean) -->
+    <div class="hidden">
+      <label class="text-xs text-gray-400">
+        Process every
+        <span id="frameIntervalValue"
+              class="font-mono text-purple-400">5</span>
+        frames
+      </label>
+
+      <input
+        type="range"
+        id="frameInterval"
+        min="1" max="30" value="5"
+        class="w-full"
+        onchange="document.getElementById('frameIntervalValue').textContent = this.value">
+    </div>
+
+  </div>
+
+  <!-- Actions -->
+  <div class="flex items-center gap-2">
+
+    <button
+      onclick="startLiveStream()"
+      id="startStreamBtn"
+      class="px-4 py-2 rounded-md
+             text-sm font-medium
+             text-white
+             bg-purple-600 hover:bg-purple-700
+             transition">
+      Start Detection
+    </button>
+
+    <button
+      onclick="stopLiveStream()"
+      id="stopStreamBtn"
+      class="px-4 py-2 rounded-md
+             text-sm font-medium
+             text-red-400
+             border border-red-500/30
+             hover:bg-red-500/10
+             transition hidden">
+      🛑 Stop
+    </button>
+
+  </div>
+
+</div>
+
+
+            <div id="streamStatusContainer" class="hidden mt-5">
+
+            <!-- Status Panel -->
+            <div class="rounded-lg
+                        bg-[#050B1E]
+                        border border-slate-700/50
+                        px-4 py-3 mb-4">
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+
+                <!-- Connection -->
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-gray-400">Connection</span>
+
+                    <span id="connectionStatus"
+                        class="px-2 py-0.5 rounded-md
+                                text-xs font-medium
+                                bg-slate-800 text-gray-300">
+                    Disconnected
+                    </span>
+                </div>
+
+                <!-- Stream -->
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-gray-400">Stream</span>
+
+                    <span id="streamStatus"
+                        class="text-xs font-medium text-gray-400">
+                    Not Started
+                    </span>
+                </div>
+
+                </div>
+            </div>
+
+            <!-- Telemetry Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+
+                <!-- Frames -->
+                <div class="flex items-center justify-between
+                            px-2.5 py-1.5 rounded-md
+                            bg-[#050B1E]
+                            border border-emerald-400/20">
+
+                <span class="text-[10px] uppercase tracking-wide text-gray-400">
+                    Frames
+                </span>
+
+                <span id="liveFramesCount"
+                        class="font-mono text-xs sm:text-sm font-semibold text-emerald-300">
+                    0
+                </span>
+                </div>
+
+                <!-- Total -->
+                <div class="flex items-center justify-between
+                            px-2.5 py-1.5 rounded-md
+                            bg-[#050B1E]
+                            border border-emerald-400/20">
+
+                <span class="text-[10px] uppercase tracking-wide text-gray-400">
+                    Total
+                </span>
+
+                <span id="liveDetectionsCount"
+                        class="font-mono text-xs sm:text-sm font-semibold text-emerald-300">
+                    0
+                </span>
+                </div>
+
+                <!-- Current -->
+                <div class="flex items-center justify-between
+                            px-2.5 py-1.5 rounded-md
+                            bg-[#050B1E]
+                            border border-blue-400/20">
+
+                <span class="text-[10px] uppercase tracking-wide text-gray-400">
+                    Current
+                </span>
+
+                <span id="currentDetectionsCount"
+                        class="font-mono text-xs sm:text-sm font-semibold text-blue-300">
+                    0
+                </span>
+                </div>
+
+            </div>
+            </div>
+
+                
+                
+                
+                <div id="liveVideoContainer" class="hidden mb-6">
+                    <div class="bg-white rounded-lg p-4">
+                        <div class="flex items-center mb-4">
+                            <span class="live-indicator"></span>
+                          <h3 class="text-lg font-semibold text-purple-400">
+  Live Video Feed
+</h3>
+
+                        </div>
+                        
+                        <!-- Video Display -->
+                        <div id="liveVideoWrapper" class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
+                            <img id="liveVideoFrame" 
+                                src="" 
+                                alt="Live Stream" 
+                                class="w-full h-full object-contain">
+                            
+                            <!-- Overlay with current detections -->
+                            <div class="absolute top-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
+                                <div class="text-sm">
+                                    Frame: <span id="overlayFrameNumber" class="font-bold">0</span> | 
+                                    Detections: <span id="overlayDetectionCount" class="font-bold text-green-400">0</span>
+                                </div>
+                            </div>
+                            
+                            <!-- FPS Counter -->
+                            <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
+                                <div class="text-sm">
+                                    FPS: <span id="streamFPS" class="font-bold text-blue-400">0</span>
+                                </div>
+                            </div>
+                                            <button
+                    id="fullscreenBtn"
+                    class="absolute bottom-4 right-4 z-10
+                        bg-black bg-opacity-70 text-white
+                        px-3 py-2 rounded-lg
+                        hover:bg-opacity-90 transition"
+                    title="Fullscreen">
+                    ⛶
+                </button>
+                        </div>
+                        
+                        <!-- Detection Details -->
+                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold mb-2">Current Frame Detections:</h4>
+                            <div id="currentFrameDetections" class="flex flex-wrap gap-2">
+                                <span class="text-gray-500 text-sm">No detections yet...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+    
+                <div id="liveDetectionsContainer" class="hidden">
+                    <div class="bg-white rounded-lg p-4">
+                        <div class="flex items-center mb-4">
+                            <span class="live-indicator"></span>
+                            <h3 class="text-lg font-semibold text-purple-400">Detection History</h3>
+                        </div>
+                        <div id="liveDetectionsList" class="space-y-3 max-h-96 overflow-y-auto">
+                            <div class="text-center py-8 text-gray-500">Waiting for detections...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                </div>
+
+
+
+
+
+            </div>   
+
+</section>
+
+
+    
+
+        </div>
+
+
     </div>
     </div>
 
@@ -662,6 +1244,9 @@
         let fps = 0;
         let frameBuffer = [];
         let isProcessingFrame = false;
+        let xhr = null;
+        let processing = false;
+        
 
         // WebSocket connection
         async function connectWebSocket(taskId) {
@@ -725,6 +1310,30 @@
                 }
             }, 1000); // Poll every 1 second
         }
+
+function handleVideoSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const video = document.getElementById("videoPlayer");
+  const preview = document.getElementById("videoPreview");
+  const info = document.getElementById("fileInfo");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  // Preview video
+  const url = URL.createObjectURL(file);
+  video.src = url;
+
+  info.textContent = `${file.name} • ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+  preview.classList.remove("hidden");
+
+  // 🔑 THIS IS WHAT YOU MISSED
+  uploadBtn.disabled = false;
+
+  // Safety: reset cancel state if user reselects
+  cancelBtn.classList.add("hidden");
+}
 
         // Update progress UI
         function updateProgressUI(progressData) {
@@ -935,6 +1544,7 @@
 
             // Show results panel
             document.getElementById('processingResults').classList.remove('hidden');
+            document.getElementById('cancelBtn').classList.remove('hidden');
         }
 
         function showStatus(elementId, message, type) {
@@ -950,105 +1560,130 @@
         }
 
         // Upload and process video
-        async function uploadAndProcessVideo() {
-            const fileInput = document.getElementById('videoFile');
-            const file = fileInput.files[0];
-            const similarityThreshold = document.getElementById('similarityThreshold').value;
+ async function uploadAndProcessVideo() {
+    if (processing) return; // hard guard
 
-            if (!file) {
-                showStatus('uploadStatus', 'Please select a video file first', 'error');
+    const fileInput = document.getElementById('videoFile');
+    const file = fileInput.files[0];
+    const similarityThreshold = document.getElementById('similarityThreshold').value;
+
+    if (!file) {
+        showStatus('uploadStatus', 'Please select a video file first', 'error');
+        return;
+    }
+
+    // Large file warning
+    if (file.size > 100 * 1024 * 1024) {
+        if (!confirm(`This file is ${formatFileSize(file.size)}. Large files may take several minutes. Continue?`)) {
+            return;
+        }
+    }
+
+    processing = true;
+
+    // UI STATE
+    document.getElementById('uploadForm').classList.add('hidden');
+    document.getElementById('progressContainer').classList.remove('hidden');
+    document.getElementById('cancelBtn').classList.remove('hidden');
+    document.getElementById('uploadBtn').disabled = true;
+    document.getElementById('taskIdDisplay1').classList.remove('hidden');
+    fileInput.disabled = true;
+
+    updateProgressUI({
+        stage: 'uploading',
+        progress: 5,
+        message: 'Preparing to upload video...'
+    });
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('similarity_threshold', similarityThreshold);
+
+    xhr = new XMLHttpRequest();
+    xhr.open('POST', '/Upload_Video', true);
+
+    xhr.upload.onprogress = (event) => {
+        if (!event.lengthComputable) return;
+        const percent = 5 + (event.loaded / event.total) * 20;
+        updateProgressUI({
+            stage: 'uploading',
+            progress: percent,
+            message: `Uploading: ${formatFileSize(event.loaded)} / ${formatFileSize(event.total)}`
+        });
+    };
+
+    xhr.onload = async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            let data;
+            try {
+                data = JSON.parse(xhr.responseText);
+            } catch {
+                onProcessingError('Invalid server response');
                 return;
             }
 
-            // Reset state
-            startTime = Date.now();
+            currentTaskId = data.task_id;
 
-            // Show file size confirmation for large files
-            if (file.size > 100 * 1024 * 1024) {
-                if (!confirm(`This file is ${formatFileSize(file.size)}. Large files may take several minutes to process. Continue?`)) {
-                    return;
-                }
-            }
+            document.getElementById('taskIdDisplay').classList.remove('hidden');
+            
+            document.getElementById('currentTaskId').textContent = currentTaskId;
 
-            // Reset UI
-            document.getElementById('uploadStatus').classList.add('hidden');
-            document.getElementById('processingResults').classList.add('hidden');
-            document.getElementById('frameGallery').classList.add('hidden');
-            // Show progress container
-            document.getElementById('progressContainer').classList.remove('hidden');
-            document.getElementById('uploadForm').classList.add('hidden');
-            // Show cancel button
-            document.getElementById('cancelBtn').classList.remove('hidden');
-            // Disable file input during processing
-            fileInput.disabled = true;
-            // Initialize progress UI
-            updateProgressUI({ stage: 'uploading', progress: 5, message: 'Preparing to upload video...' });
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('similarity_threshold', similarityThreshold);
-
-            // Use XMLHttpRequest for upload progress
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/Upload_Video', true);
-
-            xhr.upload.onprogress = function (event) {
-                if (event.lengthComputable) {
-                    let percent = 5 + (event.loaded / event.total) * 20; // [5%, 25%]
-                    let message = `Uploading: ${formatFileSize(event.loaded)} / ${formatFileSize(event.total)}`;
-                    updateProgressUI({ stage: 'uploading', progress: percent, message });
-                }
-            };
-            xhr.onload = async function () {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    let data = {};
-                    try {
-                        data = JSON.parse(xhr.responseText);
-                    } catch (e) {
-                        onProcessingError('Upload succeeded but server response is not valid JSON.');
-                        return;
-                    }
-                    // Store task ID
-                    currentTaskId = data.task_id;
-                    currentVideoData = data.video_data;
-                    // Show task ID
-                    document.getElementById('taskIdDisplay').classList.remove('hidden');
-                    document.getElementById('currentTaskId').textContent = currentTaskId;
-                    // Connect to WebSocket for progress updates
-                    await connectWebSocket(currentTaskId);
-                } else {
-                    let errorText = xhr.responseText;
-                    onProcessingError(`Server error: ${xhr.status} - ${errorText}`);
-                }
-            };
-            xhr.onerror = function () {
-                onProcessingError('Network error during file upload!');
-            };
-            xhr.send(formData);
+            await connectWebSocket(currentTaskId);
+        } else {
+            onProcessingError(`Server error ${xhr.status}`);
         }
+    };
 
-        function cancelProcessing() {
-            if (confirm('Are you sure you want to cancel processing?')) {
-                // Update UI
-                showStatus('uploadStatus', 'Processing cancelled by user', 'info');
-                document.getElementById('progressContainer').classList.add('hidden');
-                document.getElementById('uploadForm').classList.remove('hidden');
-                document.getElementById('uploadBtn').disabled = false;
-                document.getElementById('videoFile').disabled = false;
-                document.getElementById('cancelBtn').classList.add('hidden');
-                
-                // Clean up
-                if (websocket) {
-                    websocket.close();
-                    websocket = null;
-                }
-                if (httpPollingInterval) {
-                    clearInterval(httpPollingInterval);
-                    httpPollingInterval = null;
-                }
-            }
-        }
+    xhr.onerror = () => {
+        onProcessingError('Network error during upload');
+    };
 
+    xhr.onabort = () => {
+        console.warn('Upload aborted by user');
+    };
+
+    xhr.send(formData);
+}
+
+// function cancelProcessing() {
+//     if (!processing) return;
+
+//     if (!confirm('Are you sure you want to cancel processing?')) return;
+
+//     // Abort upload immediately
+//     if (xhr) {
+//         xhr.abort();
+//         xhr = null;
+//     }
+
+//     // Close WebSocket
+//     if (websocket) {
+//         websocket.close();
+//         websocket = null;
+//     }
+
+//     // Stop polling
+//     if (httpPollingInterval) {
+//         clearInterval(httpPollingInterval);
+//         httpPollingInterval = null;
+//     }
+
+//     // OPTIONAL: tell backend to cancel task
+//     if (currentTaskId) {
+//         fetch(`/cancel-task/${currentTaskId}`, { method: 'POST' })
+//             .catch(() => {});
+//     }
+
+//     resetUIAfterCancel();
+   
+// }
+
+
+
+function cancelProcessing() {
+ 
+  location.reload();
+}
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -1103,6 +1738,7 @@
                 toggleLoader('detectLoader', true);
                 document.getElementById('detectBtn').classList.add('hidden');
                 document.getElementById('detectStatus').classList.add('hidden');
+                document.getElementById('cancelBtn').classList.remove('hidden');
                 
                 // Show detection in progress
                 showStatus('detectStatus', 'Starting object detection... This may take a while.', 'info');
@@ -1146,7 +1782,7 @@
                     document.getElementById('detectionStatus').textContent = 'completed';
                     document.getElementById('detectionStatus').className = 'font-medium text-green-600';
                     document.getElementById('detectionStatusIcon').classList.remove('hidden');
-                    
+                    document.getElementById('showFramesBtn').classList.remove('hidden');
                     // Hide detect button
                     document.getElementById('detectBtn').classList.add('hidden');
                     
@@ -1329,7 +1965,7 @@
             // 33ms = ~30 FPS, 16ms = ~60 FPS
             setTimeout(() => {
                 processFrameBuffer();
-            }, 16);
+            }, 33);
         }
 
 
@@ -1410,57 +2046,74 @@
             document.getElementById('liveDetectionsList').innerHTML = `<div class="text-center py-8 text-red-500">❌ ${msg}</div>`;
         }
 
-        // Update the class filter buttons based on available classes
-        function updateClassFilterButtons() {
-            const classFilter = document.getElementById('classFilter');
-            
-            // Clear existing buttons (except "All")
-            while (classFilter.children.length > 1) {
-                classFilter.removeChild(classFilter.lastChild);
-            }
 
-            // Add buttons for each class
-            if (currentVideoData.availableClasses && currentVideoData.availableClasses.size > 0) {
-                currentVideoData.availableClasses.forEach(className => {
-                    const btn = document.createElement('button');
-                    btn.className = `class-filter-btn ${selectedClassFilter === className ? 'active' : ''}`;
-                    btn.textContent = className;
-                    btn.onclick = () => filterByClass(className);
-                    classFilter.appendChild(btn);
-                });
-            } else if (currentVideoData.frames) {
-                // Extract classes from frames if not already available
-                const classes = new Set();
-                currentVideoData.frames.forEach(frame => {
-                    if (frame.labels && Array.isArray(frame.labels)) {
-                        frame.labels.forEach(label => {
-                            if (label.class_name) {
-                                classes.add(label.class_name);
-                            }
-                        });
-                    }
-                });
-                
-                if (classes.size > 0) {
-                    currentVideoData.availableClasses = classes;
-                    classes.forEach(className => {
-                        const btn = document.createElement('button');
-                        btn.className = `class-filter-btn ${selectedClassFilter === className ? 'active' : ''}`;
-                        btn.textContent = className;
-                        btn.onclick = () => filterByClass(className);
-                        classFilter.appendChild(btn);
-                    });
-                }
-            }
-            
-            // Update "All" button state
-            const allBtn = classFilter.querySelector('.all-btn');
-            if (allBtn) {
-                allBtn.className = selectedClassFilter === 'all' ? 
-                    'class-filter-btn all-btn active' : 
-                    'class-filter-btn all-btn';
-            }
-        }
+        
+        function updateClassFilterButtons() {
+  const classFilter = document.getElementById("classFilter");
+
+  // Remove all buttons except "All"
+  while (classFilter.children.length > 1) {
+    classFilter.removeChild(classFilter.lastChild);
+  }
+
+  // Helper to create a styled chip
+  const createButton = (className) => {
+    const btn = document.createElement("button");
+
+    const isActive = selectedClassFilter === className;
+
+    btn.textContent = className;
+    btn.onclick = () => filterByClass(className);
+
+    btn.className = `
+      px-3 py-1.5 rounded-full
+      text-xs font-medium
+      border transition
+      ${
+        isActive
+          ? "bg-emerald-500/20 text-emerald-600 border-emerald-500/30"
+          : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+      }
+    `;
+
+    return btn;
+  };
+
+  // Get classes
+  let classes = currentVideoData?.availableClasses;
+
+  if (!classes && currentVideoData?.frames) {
+    classes = new Set();
+    currentVideoData.frames.forEach(frame => {
+      frame.labels?.forEach(label => {
+        if (label.class_name) classes.add(label.class_name);
+      });
+    });
+    currentVideoData.availableClasses = classes;
+  }
+
+  // Add class buttons
+  if (classes && classes.size > 0) {
+    classes.forEach(className => {
+      classFilter.appendChild(createButton(className));
+    });
+  }
+
+  // Update "All" button state
+  const allBtn = classFilter.querySelector(".all-btn");
+  if (allBtn) {
+    allBtn.className = `
+      px-3 py-1.5 rounded-full
+      text-xs font-semibold
+      border transition
+      ${
+        selectedClassFilter === "all"
+          ? "bg-emerald-500/20 text-emerald-600 border-emerald-500/30"
+          : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+      }
+    `;
+  }
+}
 
         function displayFrames() {
             const frameList = document.getElementById('frameList');
@@ -1545,23 +2198,80 @@
                 }
                 
                 frameElement.innerHTML = `
-                    <div class="p-3 ${showDetectionResults ? 'bg-green-50 border-b border-green-100' : 'bg-indigo-50 border-b border-indigo-100'}">
-                        <h4 class="text-sm font-medium ${showDetectionResults ? 'text-green-700' : 'text-indigo-700'}">
-                            ${frameTitle}
-                        </h4>
-                    </div>
-                    <div class="p-3">
-                        <img src="${imgUrl}" alt="Frame ${frame.frameNumber}" class="w-full h-32 object-cover rounded hover:scale-105 transition-transform" 
-                            onclick="openModal('${imgUrl}', ${frame.frameNumber}, ${frame.timestamp ? frame.timestamp.toFixed(2) : '0.00'}, ${relevantDetections})"
-                            loading="lazy">
-                        <p class="text-xs text-gray-500 mt-2">Timestamp: ${frame.timestamp ? frame.timestamp.toFixed(2) : '0.00'}s</p>
-                        ${relevantDetections > 0 ? 
-                            `<p class="text-xs text-green-600 mt-1 font-medium">Detections: ${relevantDetections}</p>
-                             <p class="text-xs text-gray-600 mt-1 truncate">Classes: ${detectionClasses.join(', ')}</p>` : 
-                            `<p class="text-xs text-gray-400 mt-1">No detections</p>`
-                        }
-                    </div>
-                `;
+  <div class="rounded-xl overflow-hidden
+              bg-white border border-slate-200
+              hover:shadow-xl transition-all duration-200">
+
+    <!-- Header -->
+    <div class="px-3 py-2
+                ${showDetectionResults
+                  ? 'bg-green-50 border-b border-green-100'
+                  : 'bg-indigo-50 border-b border-indigo-100'}">
+      <h4 class="text-sm font-semibold
+                 ${showDetectionResults ? 'text-green-700' : 'text-indigo-700'}">
+        ${frameTitle}
+      </h4>
+    </div>
+
+    <!-- Image -->
+    <div class="relative group cursor-zoom-in">
+      <img
+        src="${imgUrl}"
+        alt="Frame ${frame.frameNumber}"
+        loading="lazy"
+        onclick="showFullFrame(
+  '${imgUrl}',
+  ${frame.frameNumber},
+  ${frame.timestamp ? frame.timestamp.toFixed(2) : '0.00'},
+  ${relevantDetections}
+)"
+
+        
+        class="w-full h-36 object-cover
+               transition-transform duration-300
+               group-hover:scale-110" />
+
+      <!-- Hover overlay -->
+      <div class="absolute inset-0
+                  bg-black/40 opacity-0
+                  group-hover:opacity-100
+                  flex items-center justify-center
+                  transition
+                  pointer-events-none">
+        <span class="text-white text-xs font-medium
+                     bg-black/60 px-3 py-1 rounded-full">
+          Click to expand
+        </span>
+      </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="px-3 py-3 text-xs space-y-1">
+      <p class="text-gray-500">
+        ⏱ Timestamp: ${frame.timestamp ? frame.timestamp.toFixed(2) : '0.00'}s
+      </p>
+
+      ${
+        relevantDetections > 0
+          ? `
+            <p class="text-green-600 font-medium">
+              🟢 Detections: ${relevantDetections}
+            </p>
+            <p class="text-gray-600 truncate">
+              Classes: ${detectionClasses.join(', ')}
+            </p>
+          `
+          : `
+            <p class="text-gray-400 italic">
+              No detections
+            </p>
+          `
+      }
+    </div>
+
+  </div>
+`;
+
                 
                 frameList.appendChild(frameElement);
             });
@@ -1786,6 +2496,70 @@
                 stopLiveStream();
             }
         }
+
+
+
+        function toggleFullscreen() {
+    const container = document.getElementById('videoContainer');
+
+    if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+            console.error(`Fullscreen error: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const wrapper = document.getElementById("liveVideoWrapper");
+    const btn = document.getElementById("fullscreenBtn");
+
+    if (!wrapper || !btn) {
+        console.error("Fullscreen elements missing");
+        return;
+    }
+
+    btn.addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+            wrapper.requestFullscreen().catch(err => {
+                console.error("Fullscreen failed:", err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    });
+});
+
+let currentFullFrameData = null;
+
+function showFullFrame(imgUrl, frameNumber, timestamp, detections) {
+  const section = document.getElementById("fullFrameSection");
+  const img = document.getElementById("fullFrameImage");
+
+  currentFullFrameData = { imgUrl, frameNumber, timestamp, detections };
+
+  img.src = imgUrl;
+  section.classList.remove("hidden");
+
+  // Scroll into view (important UX)
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function closeFullFrame() {
+  document.getElementById("fullFrameSection").classList.add("hidden");
+  currentFullFrameData = null;
+}
+
+function openModalFromFullFrame() {
+  if (!currentFullFrameData) return;
+
+  const { imgUrl, frameNumber, timestamp, detections } = currentFullFrameData;
+
+  openModal(imgUrl, frameNumber, timestamp, detections);
+}
+
     </script>
 </body>
 </html>
