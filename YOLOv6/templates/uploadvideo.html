@@ -1242,8 +1242,47 @@
 
             <div id="demoTab"class="tab-content">
                 <!-- Demo content -->
-                <h2>Demo Section</h2>
-                <p>This is where your demo goes.</p>
+  <div class="bg-white rounded-2xl p-8 shadow-lg max-w-4xl mx-auto">
+
+    <!-- Title -->
+    <h2 class="text-2xl font-bold text-slate-800 mb-2">
+      Product Demo
+    </h2>
+    <p class="text-slate-500 mb-6">
+      See how the system works with a sample video — no upload required.
+    </p>
+
+    <!-- Demo Video -->
+    <div class="relative bg-black rounded-xl overflow-hidden mb-6" style="aspect-ratio: 16/9;">
+      <video controls class="w-full h-full object-cover">
+        <source src="/static/demo/demo-video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Demo Actions -->
+    <div class="flex flex-wrap gap-4">
+      <button
+        class="px-6 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">
+        ▶ Run Demo Analysis
+      </button>
+
+      <button
+        class="px-6 py-3 rounded-full border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+        📄 View Sample Results
+      </button>
+    </div>
+
+    <!-- Demo Info -->
+    <div class="mt-6 text-sm text-slate-500">
+      <p>✔ Uses a preloaded sample video</p>
+      <p>✔ No data is stored</p>
+      <p>✔ Results are simulated for demonstration</p>
+    </div>
+
+  </div>
+
+
                 </div>
 
 </section>
