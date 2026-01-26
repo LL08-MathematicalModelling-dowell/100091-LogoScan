@@ -510,7 +510,7 @@
                 🎥 Live Stream
             </button>
 
-            <button  id = "demobutton" class="tab-button" onclick="switchTab('demo')">
+            <button  id = "tab-button" class="tab-button" onclick="switchTab('demo')">
                 🧪 Demo
             </button>
             </div>
@@ -1240,7 +1240,7 @@
             </div>   
 
 
-            <div id="demo"class="hidden">
+            <div id="demoTab"class="tab-content">
                 <!-- Demo content -->
                 <h2>Demo Section</h2>
                 <p>This is where your demo goes.</p>
@@ -2514,6 +2514,13 @@ function cancelProcessing() {
 
         // Tab Switching Function
         function switchTab(tabName) {
+                console.log(tabName)
+                        if (tabName === 'demo') {
+                          document.getElementById('demoTab').classList.remove('hidden');
+            }
+            else{
+                 document.getElementById('demoTab').classList.remove('active');
+            }
             // Update tab buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
@@ -2524,11 +2531,9 @@ function cancelProcessing() {
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-
+            
             document.getElementById(tabName + 'Tab').classList.add('active');
-            if (tabName === 'demo') {
-                          document.getElementById('demo').classList.remove('hidden');
-            }
+
             // Clean up when switching tabs
             if (tabName === 'upload' && liveStreamWs) {
                 stopLiveStream();
