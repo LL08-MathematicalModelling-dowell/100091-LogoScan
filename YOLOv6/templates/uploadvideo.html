@@ -220,6 +220,29 @@
             display: block;
         }
 
+
+   .tab-button1 {
+            padding: 12px 24px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .tab-button1:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+        .tab-button1.active {
+            border-bottom-color: #d4d4e1;
+            color: #4f46e5;
+        }
+        .tab-content1 {
+            display: none;
+        }
+        .tab-content1.active {
+            display: block;
+        }
+
+
         /* Live stream styles */
         .detection-badge {
             display: inline-block;
@@ -479,12 +502,17 @@
   </p>
             <!-- Tab Navigation -->
             <div class="media-tabs">
-                <button class="tab-button active" onclick="switchTab('upload')">
-                    📤 Upload Video
-                </button>
-                <button class="tab-button" onclick="switchTab('livestream')">
-                    🎥 Live Stream
-                </button>
+            <button class="tab-button active" onclick="switchTab('upload')">
+                📤 Upload Video
+            </button>
+
+            <button class="tab-button" onclick="switchTab('livestream')">
+                🎥 Live Stream
+            </button>
+
+            <button  id = "demobutton" class="tab-button" onclick="switchTab('demo')">
+                🧪 Demo
+            </button>
             </div>
 </section>
 
@@ -1210,6 +1238,13 @@
 
 
             </div>   
+
+
+            <div id="demo"class="hidden">
+                <!-- Demo content -->
+                <h2>Demo Section</h2>
+                <p>This is where your demo goes.</p>
+                </div>
 
 </section>
 
@@ -2489,8 +2524,11 @@ function cancelProcessing() {
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            document.getElementById(tabName + 'Tab').classList.add('active');
 
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            if (tabName === 'demo') {
+                          document.getElementById('demo').classList.remove('hidden');
+            }
             // Clean up when switching tabs
             if (tabName === 'upload' && liveStreamWs) {
                 stopLiveStream();
