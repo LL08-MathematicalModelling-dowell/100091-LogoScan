@@ -46,108 +46,125 @@
       color: #111827;
     }
 
-    header {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        header {
+        max-width: min(1200px, 100%);
+        margin: auto;
+        padding: clamp(14px, 3vw, 20px) clamp(16px, 4vw, 24px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        }
+
     
 
-    nav {
-      display: flex;
-      gap: 24px;
-      font-size: 14px;
-      color: var(--gray-text);
-    }
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: clamp(12px, 3vw, 24px);
+            font-size: clamp(13px, 1.6vw, 14px);
+            color: var(--gray-text);
+            }
 
-    nav a {
-      text-decoration: none;
-      color: inherit;
-    }
+        nav a {
+        text-decoration: none;
+        color: inherit;
+        padding: 4px 0;
+        }
 
 
-    .hero {
-      text-align: center;
-      margin-top: 60px;
-      padding: 0 24px;
-    }
 
-    .hero h1 {
-      font-size: 42px;
-      font-weight: 800;
-      margin-bottom: 5px;
-    }
+        .hero {
+            text-align: center;
+            margin-top: clamp(32px, 8vw, 60px);
+            padding: 0 clamp(16px, 4vw, 24px);
+            }
 
-    .hero p {
-      max-width: 600px;
-      margin: auto;
-      font-size: 15px;
-      color: var(--gray-text);
-    }
 
-       .media-tabs {
-      display: inline-flex;
-      background: #eef2ff;
-      border-radius: 999px;
-      padding: 4px;
-      margin-top: 15px;
-    }
+        .hero h1 {
+        font-size: clamp(24px, 5vw, 42px);
+        font-weight: 700;
+        margin-bottom: 5px;
+        }
 
-    .media-tabs button {
-      padding: 10px 22px;
-      border: none;
-      background: transparent;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--gray-text);
-    }
+        .hero p {
+        max-width: min(600px, 90%);
+        margin: auto;
+        font-size: clamp(14px, 1.8vw, 18px);
+        line-height: 1.6;
+        color: var(--gray-text);
+        }
+
+            .media-tabs {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        background: #eef2ff;
+        border-radius: 999px;
+        padding: 4px;
+        margin-top: 15px;
+        max-width: 100%;
+        }
+        .media-tabs button {
+        padding: clamp(8px, 1.5vw, 10px) clamp(14px, 3vw, 22px);
+        border: none;
+        background: transparent;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: clamp(13px, 1.5vw, 15px);
+        color: var(--gray-text);
+        white-space: nowrap;
+        }
 
     .media-tabs .active {
       background: var(--blue);
       color: #fff;
     }
+        .card {
+        max-width: min(1000px, 94%);
+        margin: clamp(20px, 6vw, 40px) auto;
+        background: #f8fafc;
+        border-radius: clamp(14px, 3vw, 20px);
+        padding: clamp(16px, 4vw, 32px);
 
- .card {
-  max-width: 1000px;
-  margin: 40px auto;
-  background: #f8fafc; 
-  border-radius: 20px;
-  padding: 32px;
+        box-shadow: 0 20px 40px rgba(15,23,42,.12);
+        border: 1px solid rgba(255,255,255,0.06);
+        }
 
-  box-shadow: 0 30px 60px rgba(15,23,42,.15);
-  border: 1px solid rgba(255,255,255,0.06);
-}
+        .card h2 {
+        margin-top: 0;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        font-size: clamp(18px, 2.5vw, 22px);
+        font-weight: 700;
+        color: #000;
+        }
 
-    .card h2 {
-      margin-top: 0;
-      margin-bottom: 24px;
-      font-size: 20px;
-      font-weight: 700;
-      color : #000;
-    
-    }
 
 
         header {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+                max-width: min(1200px, 100%);
+                margin: auto;
+                padding: clamp(14px, 3vw, 20px) clamp(16px, 4vw, 24px);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                }
+
 
         .tab-button {
-        padding: 14px 20px;
+        padding: clamp(10px, 2.5vw, 14px) clamp(14px, 4vw, 20px);
         font-weight: 500;
+        font-size: clamp(13px, 1.6vw, 15px);
         color: #9ca3af;
         border-bottom: 3px solid transparent;
         transition: all 0.3s ease;
+        white-space: nowrap;
         }
+
         .tab-button:hover {
         background: rgba(52,211,153,0.08);
         }
@@ -159,15 +176,18 @@
 
 
         /* Spinner */
+
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #4f46e5;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
+        width: clamp(24px, 5vw, 32px);
+        height: clamp(24px, 5vw, 32px);
+        border: clamp(3px, 0.6vw, 4px) solid rgba(0, 0, 0, 0.1);
+        border-left-color: #4f46e5;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: inline-block;
         }
+
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -177,18 +197,19 @@
             100% { background-position: 0 0; }
         }
         .progress-striped {
-            background-image: linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.15) 25%,
-                transparent 25%,
-                transparent 50%,
-                rgba(255, 255, 255, 0.15) 50%,
-                rgba(255, 255, 255, 0.15) 75%,
-                transparent 75%,
-                transparent
-            );
-            background-size: 40px 40px;
+        background-image: linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.15) 75%,
+            transparent 75%,
+            transparent
+        );
+        background-size: clamp(16px, 4vw, 40px) clamp(16px, 4vw, 40px);
         }
+
         .progress-animated {
             animation: progressStripes 1s linear infinite;
         }
@@ -200,19 +221,26 @@
         .stage-error { background: linear-gradient(to right, #ef4444, #dc2626); }
         /* Tab styles */
         .tab-button {
-            padding: 12px 24px;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
+            padding: clamp(10px, 2.5vw, 12px) clamp(14px, 4vw, 24px);
+            font-size: clamp(13px, 1.6vw, 15px);
             font-weight: 500;
             cursor: pointer;
-        }
-        .tab-button:hover {
+
+            border-bottom: 3px solid transparent;
+            transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+            white-space: nowrap;
+            }
+
+            .tab-button:hover {
             background: rgba(79, 70, 229, 0.1);
-        }
-        .tab-button.active {
-            border-bottom-color: #4f46e5;
-            color: #4f46e5;
-        }
+            }
+
+            .tab-button.active {
+                border-bottom-color: #4f46e5;
+                color: #4f46e5;
+                background: rgba(79, 70, 229, 0.08);
+                }
+
         .tab-content {
             display: none;
         }
@@ -246,32 +274,49 @@
         /* Live stream styles */
         .detection-badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
+
+            padding: clamp(4px, 1vw, 6px) clamp(10px, 3vw, 14px);
+            border-radius: 999px;
+
+            font-size: clamp(12px, 1.4vw, 14px);
             font-weight: 500;
-            margin: 4px;
-        }
-        .live-indicator {
+            line-height: 1.2;
+
+            margin: clamp(2px, 0.8vw, 4px);
+            }
+
+            .live-indicator {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+
+            width: clamp(6px, 1.5vw, 8px);
+            height: clamp(6px, 1.5vw, 8px);
+
             background: #ef4444;
             border-radius: 50%;
+
             animation: pulse 2s infinite;
-            margin-right: 8px;
-        }
+            margin-right: clamp(4px, 1.5vw, 8px);
+            }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%   { opacity: 1; transform: scale(1); }
+            50%  { opacity: 0.6; transform: scale(1.4); }
+            100% { opacity: 1; transform: scale(1); }
         }
         .detection-item {
-            animation: slideInLeft 0.3s ease-out;
+            animation: slideInLeft 0.25s ease-out;
         }
+        @media (prefers-reduced-motion: reduce) {
+            .detection-item,
+            .live-indicator {
+                animation: none;
+            }
+            }
+
         @keyframes slideInLeft {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateX(clamp(-12px, -3vw, -20px));
             }
             to {
                 opacity: 1;
@@ -280,13 +325,18 @@
         }
 
         .detection-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+
+            padding: clamp(4px, 1vw, 6px) clamp(10px, 3vw, 14px);
+            border-radius: 999px;
+
+            font-size: clamp(12px, 1.4vw, 14px);
             font-weight: 500;
-            margin: 4px;
-        }
+            line-height: 1.2;
+
+            margin: clamp(2px, 0.8vw, 4px);
+            }
 
         .detection-badge.person {
             background: #dbeafe;
@@ -303,156 +353,258 @@
             color: #374151;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+      @keyframes pulse {
+        0%   { opacity: 1; transform: scale(1); }
+        50%  { opacity: 0.6; transform: scale(1.25); }
+        100% { opacity: 1; transform: scale(1); }
         }
 
         .processing-indicator {
-            animation: pulse 1.5s infinite;
+        animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+        .processing-indicator {
+            animation: none;
+        }
         }
 
         #liveVideoFrame {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+
+        image-rendering: auto;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+
+        max-width: 100%;
+        max-height: 100%;
         }
 
+
         /* Smooth transitions for stats */
-        #overlayFrameNumber, #overlayDetectionCount, #streamFPS {
-            transition: all 0.3s ease;
+        #overlayFrameNumber,
+        #overlayDetectionCount,
+        #streamFPS {
+        transition: color 0.25s ease, transform 0.25s ease;
         }
+
 
         /* Loading indicator while buffering */
         .video-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 1.2em;
-            animation: pulse 1.5s infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        color: #fff;
+        font-size: clamp(14px, 2vw, 18px);
+        font-weight: 500;
+
+        animation: pulse 1.5s ease-in-out infinite;
         }
+        @media (prefers-reduced-motion: reduce) {
+        .video-loading {
+            animation: none;
+        }
+        }
+
+
 
         
     /* ================= LIVE ================= */
-    .live-indicator {
-    width:8px;height:8px;border-radius:50%;
-    background:#ef4444;
-    animation:pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-    0%,100%{opacity:1;}
-    50%{opacity:.4;}
-    }
+        .live-indicator {
+        width: clamp(6px, 1.5vw, 8px);
+        height: clamp(6px, 1.5vw, 8px);
+
+        border-radius: 50%;
+        background: #ef4444;
+
+        animation: pulse 1.5s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .live-indicator {
+                animation: none;
+            }
+            }
 
 
-    /* Pagination base */
-.page-btn {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: #000000; /* gray-300 */
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
 
-/* Hover */
-.page-btn:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
+            /* Pagination base */
+            .page-btn {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: #000;
 
-/* Active page */
-.page-btn.active {
-  background-color: #34d399; /* emerald-400 */
-  color: #020617;
-  border-color: transparent;
-  font-weight: 700;
-}
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: clamp(6px, 1.5vw, 8px);
 
-/* Disabled */
-.page-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+            padding: clamp(6px, 1.6vw, 8px) clamp(12px, 3vw, 14px);
+            font-size: clamp(13px, 1.6vw, 14px);
+            font-weight: 500;
 
+            cursor: pointer;
+
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease,
+                transform 0.15s ease;
+            }
+
+
+        /* Hover */
+        .page-btn:not(:disabled):not(.disabled):hover {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        }
+
+        /* Active page */
+        .page-btn.active {
+        background-color: #34d399; /* emerald-400 */
+        color: #020617;
+        border-color: transparent;
+
+        font-weight: 600; /* NOT 700 */
+        }
+
+        /* Disabled */
+        .page-btn:disabled,
+        .page-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+        }
+
+        .page-btn.active:hover {
+        background-color: #34d399;
+        color: #020617;
+        }
 
 
 
 
 
     /* ---------- UPLOAD ---------- */
-    .drop-zone {
-      border: 2px dashed var(--gray-border);
-      border-radius: 10px;
-      padding: 30px;
-      text-align: center;
-      cursor: pointer;
-    }
+        .drop-zone {
+        border: 2px dashed var(--gray-border);
+        border-radius: clamp(8px, 2vw, 10px);
 
-    .drop-zone p {
-      margin: 6px 0;
-      color: var(--gray-text);
-    }
+        padding: clamp(16px, 5vw, 30px);
+        text-align: center;
 
-    input[type="file"] {
-      display: none;
-    }
+        cursor: pointer;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .drop-zone:hover {
+            border-color: #4f46e5;
+            background-color: rgba(79, 70, 229, 0.04);
+            }
+
+            .drop-zone:focus-within {
+            border-color: #4f46e5;
+            }
+
+
+
+        .drop-zone p {
+        margin: clamp(4px, 1.5vw, 6px) 0;
+        font-size: clamp(13px, 1.6vw, 15px);
+        color: var(--gray-text);
+        }
+
+            input[type="file"] {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            }
+
 
     /* ---------- PREVIEW ---------- */
-    .preview {
-      margin-top: 16px;
-    }
+            .preview {
+            margin-top: clamp(12px, 4vw, 16px);
+            }
 
-   video {
-  width: 50%;
-  margin: 0 auto;
-  display: block;
-  border-radius: 12px;
-  background: #000;
-}
+            video {
+            display: block;
+
+            width: 100%;
+            max-width: min(2000px, 100%);   /* ⬅️ increase visual width */
+            aspect-ratio: 16 / 9;          /* ⬅️ keeps height proportional */
+
+            margin: clamp(16px, 5vw, 32px) auto;
+
+            border-radius: clamp(10px, 2vw, 14px);
+            background: #000;
+            }
 
 
-    .file-meta {
-      font-size: 10px;
-      color: var(--gray-text);
-      margin-top: 8px;
-    }
+        .file-meta {
+        font-size: clamp(12px, 1.4vw, 13px);
+        color: var(--gray-text);
+        margin-top: clamp(6px, 2vw, 8px);
+        }
 
-    .url-input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid var(--gray-border);
-      font-size: 15px;
-    }
+        .url-input {
+        width: 100%;
 
-    .hint {
-      font-size: 12px;
-      color: var(--gray-text);
-      margin-top: 8px;
-    }
+        padding: clamp(10px, 3vw, 14px);
+        border-radius: clamp(10px, 2vw, 12px);
+        border: 1px solid var(--gray-border);
 
-    .cta {
-      margin-top: 24px;
-      width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      border: none;
-      background: var(--blue);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-    }
+        font-size: clamp(14px, 1.8vw, 15px);
 
-    .cta:hover {
-      background: var(--blue-dark);
-    }
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            }
+
+
+                .hint {
+            font-size: clamp(12px, 1.4vw, 13px);
+            color: var(--gray-text);
+            margin-top: clamp(6px, 2vw, 8px);
+            }
+
+        .cta {
+        margin-top: clamp(16px, 5vw, 24px);
+        width: 100%;
+
+        padding: clamp(12px, 3vw, 14px);
+        border-radius: clamp(12px, 3vw, 14px);
+
+        border: none;
+        background: var(--blue);
+        color: #fff;
+
+        font-size: clamp(14px, 1.8vw, 15px);
+        font-weight: 600;
+
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.15s ease;
+        }
+
+
+        .cta:hover {
+        background: color-mix(in srgb, var(--blue), black 10%);
+        }
+
+        .cta:active {
+        transform: translateY(1px);
+        }
+
+        .cta:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        }
+
 
     .hidden {
       display: none;
@@ -466,14 +618,16 @@
   <div class="flex items-center gap-4">
 
     <!-- Back Button -->
-    <button onclick="history.back()"
-            class="flex items-center gap-2
-                   text-sm font-medium
-                   text-gray-500
-                   hover:text-gray-900
-                   transition">
-      ← Back
+    <button
+    onclick="history.back()"
+    aria-label="Go back"
+    class="p-2 rounded-full
+            text-gray-500
+            hover:bg-gray-100 hover:text-gray-900
+            transition">
+    ←
     </button>
+
 
     <!-- Logo -->
     <div class="flex items-center gap-3">
@@ -558,10 +712,10 @@
     <label
       for="videoFile"
       class="block w-full
-             border-2 border-dashed border-slate-300
-             rounded-2xl px-10 py-8
-             text-center cursor-pointer
-             hover:border-blue-300 transition">
+         border-[3px] border-dashed border-slate-500
+         rounded-2xl px-10 py-8
+         text-center cursor-pointer
+         hover:border-blue-600 transition">
 
       <p class="text-lg font-semibold text-slate-600">
         Drag and drop your file here
@@ -569,9 +723,9 @@
 
       <div
         class="mt-6 inline-flex items-center gap-2
-               bg-blue-600 hover:bg-blue-700
-               text-white font-semibold
-               px-8 py-3 rounded-full transition">
+           bg-blue-600 hover:bg-blue-700
+           text-white font-bold
+           px-8 py-3 rounded-full transition">
 
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-5"
              fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -594,14 +748,19 @@
     <!-- PREVIEW -->
 <!-- PREVIEW -->
 <div id="videoPreview" class="hidden mt-6 flex justify-center">
-  <video id="videoPlayer"
-         controls
-         class="w-full max-w-md
-                h-48
+            <video
+            id="videoPlayer"
+            controls
+            class="
+                w-full
+                max-w-4xl
+                aspect-video
                 rounded-lg
                 bg-black
-                object-contain">
-  </video>
+                object-contain
+            ">
+            </video>
+
 
 </div>
   <p id="fileInfo" class="mt-2 text-xs text-slate-500 text-center"></p>
@@ -948,27 +1107,36 @@
 
 
         <!-- Full Frame View Section -->
-<div id="fullFrameSection" class="hidden mt-6">
+<!-- FULL FRAME MODAL -->
+<div
+  id="fullFrameModal"
+  class="fixed inset-0 z-50 hidden
+         bg-black/80
+         flex items-center justify-center
+         p-4">
 
-  <div class="flex justify-between items-center mb-2">
-    <h3 class="text-sm font-semibold text-gray-700">
-      Selected Frame
-    </h3>
+  <button
+    onclick="closeFullFrame()"
+    class="absolute top-4 right-4
+           text-white text-sm hover:text-gray-300">
+    ✕ Close
+  </button>
 
-    <button onclick="closeFullFrame()"
-            class="text-xs text-gray-500 hover:text-gray-900">
-      Close
-    </button>
-  </div>
+  <div class="max-w-full max-h-full">
+    <img
+      id="fullFrameImage"
+      src=""
+      alt="Full frame"
+      class="max-w-full max-h-[90vh]
+             object-contain rounded-xl" />
 
-  <div class="relative rounded-xl overflow-hidden border border-slate-200 bg-black">
-    <img id="fullFrameImage"
-         src=""
-         alt="Full frame"
-         class="w-full max-h-[70vh] object-contain cursor-zoom-in"
-         onclick="openModalFromFullFrame()" />
+    <div id="fullFrameMeta"
+         class="mt-2 text-center text-xs text-gray-200">
+    </div>
   </div>
 </div>
+
+
 
 
 
@@ -1320,7 +1488,37 @@
         let isProcessingFrame = false;
         let xhr = null;
         let processing = false;
-        
+        const fileInput = document.getElementById("videoFile");
+         const dropZone = document.querySelector("label[for='videoFile']");
+
+      // Prevent default browser behavior
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(event => {
+        dropZone.addEventListener(event, e => e.preventDefault());
+        document.addEventListener(event, e => e.preventDefault());
+    });
+
+     // Visual feedback when dragging
+        dropZone.addEventListener("dragover", () => {
+            dropZone.classList.add("border-blue-500", "bg-blue-50");
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.classList.remove("border-blue-500", "bg-blue-50");
+        });
+
+        // Handle file drop
+        dropZone.addEventListener("drop", e => {
+            dropZone.classList.remove("border-blue-500", "bg-blue-50");
+
+            const files = e.dataTransfer.files;
+            if (!files || !files.length) return;
+
+            // Assign dropped file to input
+            fileInput.files = files;
+
+            // Trigger your existing handler
+            handleVideoSelect(fileInput);
+        });
 
         // WebSocket connection
         async function connectWebSocket(taskId) {
@@ -2617,29 +2815,46 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentFullFrameData = null;
 
 function showFullFrame(imgUrl, frameNumber, timestamp, detections) {
-  const section = document.getElementById("fullFrameSection");
+  const modal = document.getElementById("fullFrameModal");
   const img = document.getElementById("fullFrameImage");
-
-  currentFullFrameData = { imgUrl, frameNumber, timestamp, detections };
+  const meta = document.getElementById("fullFrameMeta");
 
   img.src = imgUrl;
-  section.classList.remove("hidden");
+  meta.textContent =
+    `Frame ${frameNumber} • ${timestamp}s • ${detections} detections`;
 
-  // Scroll into view (important UX)
-  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 }
+
+// function closeFullFrame() {
+//   document.getElementById("fullFrameSection").classList.add("hidden");
+//   currentFullFrameData = null;
+// }
 
 function closeFullFrame() {
-  document.getElementById("fullFrameSection").classList.add("hidden");
-  currentFullFrameData = null;
+  document.getElementById("fullFrameModal").classList.add("hidden");
+  document.body.style.overflow = "";
 }
 
-function openModalFromFullFrame() {
-  if (!currentFullFrameData) return;
 
-  const { imgUrl, frameNumber, timestamp, detections } = currentFullFrameData;
 
-  openModal(imgUrl, frameNumber, timestamp, detections);
+// function openModalFromFullFrame() {
+//   if (!currentFullFrameData) return;
+
+//   const { imgUrl, frameNumber, timestamp, detections } = currentFullFrameData;
+
+//   openModal(imgUrl, frameNumber, timestamp, detections);
+// }
+
+
+function openModalFromFullFrame(src) {
+  const modal = document.getElementById("fullFrameModal");
+  const img = document.getElementById("fullFrameImage");
+
+  img.src = src;
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden"; // prevent scroll
 }
 
     </script>
