@@ -664,8 +664,15 @@
                 🎥 Live Stream
             </button>
 
-            <button  id = "tab-button" class="tab-button" onclick="switchTab('demo')">
+
+
+            <button  id = "tab-button" class="tab-button" onclick="switchTab('Drive link')">
+                Drive Link
+            </button>
+
+                        <button  id = "tab-button" class="tab-button" onclick="switchTab('demo')">
                 🧪 Demo
+
             </button>
             </div>
 </section>
@@ -745,7 +752,7 @@
       onchange="handleVideoSelect(this)"
     />
 
-    <!-- PREVIEW -->
+  
 <!-- PREVIEW -->
 <div id="videoPreview" class="hidden mt-6 flex justify-center">
             <video
@@ -787,15 +794,385 @@
          text-white text-sm font-semibold">
   Upload & Process
 </button>
-
-
-
-
      
+    </div>
+
+<div id="uploadProcessingMount"></div>
+
+  </div>
+
+
+
+
+
+
+    </div>
+
+          <!-- Live Stream Tab -->
+        <div id="livestreamTab" class="tab-content">
+            
+            
+            <div class="mb-8 rounded-xl p-6 animate-fadeIn 
+            bg-gradient-to-br 
+            from-[#071A2E] via-[#0A2540] to-[#020617] 
+            text-white shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+
+                    <h2 class="text-xl font-semibold text-purple-700">
+                        YouTube Live Stream Detection
+                    </h2>
+
+                    <!-- <button id="stopStreamBtn"
+                            class="px-3 py-1.5 rounded-md
+                                    text-sm font-medium
+                                    text-white
+                                    bg-red-600 hover:bg-red-700
+                                    transition">
+                        Stop
+                    </button> -->
+
+                    </div>
+
+             <div id="liveStreamForm" class="mb-6">
+
+  <!-- Input -->
+  <div class="space-y-3 mb-4">
+
+    <div>
+      <label class="block text-xs font-medium text-gray-400 mb-1">
+        YouTube Live Stream URL
+      </label>
+
+      <input
+        type="text"
+        id="youtubeUrl"
+        placeholder="https://www.youtube.com/watch?v=..."
+        class="w-full px-3 py-2 rounded-md
+               bg-[#050B1E]
+               border border-slate-700/60
+               text-sm text-white
+               placeholder:text-gray-500
+               focus:outline-none focus:border-purple-500/60" />
+    </div>
+
+    <!-- Hidden advanced control (kept clean) -->
+    <div class="hidden">
+      <label class="text-xs text-gray-400">
+        Process every
+        <span id="frameIntervalValue"
+              class="font-mono text-purple-400">5</span>
+        frames
+      </label>
+
+      <input
+        type="range"
+        id="frameInterval"
+        min="1" max="30" value="5"
+        class="w-full"
+        onchange="document.getElementById('frameIntervalValue').textContent = this.value">
     </div>
 
   </div>
 
+  <!-- Actions -->
+  <div class="flex items-center gap-2">
+
+    <button
+      onclick="startLiveStream()"
+      id="startStreamBtn"
+      class="px-4 py-2 rounded-md
+             text-sm font-medium
+             text-white
+             bg-purple-600 hover:bg-purple-700
+             transition">
+      Start Detection
+    </button>
+
+    <button
+      onclick="stopLiveStream()"
+      id="stopStreamBtn"
+      class="px-4 py-2 rounded-md
+             text-sm font-medium
+             text-red-400
+             border border-red-500/30
+             hover:bg-red-500/10
+             transition hidden">
+      🛑 Stop
+    </button>
+
+  </div>
+
+</div>
+
+
+            <div id="streamStatusContainer" class="hidden mt-5">
+
+            <!-- Status Panel -->
+            <div class="rounded-lg
+                        bg-[#050B1E]
+                        border border-slate-700/50
+                        px-4 py-3 mb-4">
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+
+                <!-- Connection -->
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-gray-400">Connection</span>
+
+                    <span id="connectionStatus"
+                        class="px-2 py-0.5 rounded-md
+                                text-xs font-medium
+                                bg-slate-800 text-gray-300">
+                    Disconnected
+                    </span>
+                </div>
+
+                <!-- Stream -->
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-gray-400">Stream</span>
+
+                    <span id="streamStatus"
+                        class="text-xs font-medium text-gray-400">
+                    Not Started
+                    </span>
+                </div>
+
+                </div>
+            </div>
+
+            <!-- Telemetry Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+
+                <!-- Frames -->
+                <div class="flex items-center justify-between
+                            px-2.5 py-1.5 rounded-md
+                            bg-[#050B1E]
+                            border border-emerald-400/20">
+
+                <span class="text-[10px] uppercase tracking-wide text-gray-400">
+                    Frames
+                </span>
+
+                <span id="liveFramesCount"
+                        class="font-mono text-xs sm:text-sm font-semibold text-emerald-300">
+                    0
+                </span>
+                </div>
+
+                <!-- Total -->
+                <div class="flex items-center justify-between
+                            px-2.5 py-1.5 rounded-md
+                            bg-[#050B1E]
+                            border border-emerald-400/20">
+
+                <span class="text-[10px] uppercase tracking-wide text-gray-400">
+                    Total
+                </span>
+
+                <span id="liveDetectionsCount"
+                        class="font-mono text-xs sm:text-sm font-semibold text-emerald-300">
+                    0
+                </span>
+                </div>
+
+                <!-- Current -->
+                <div class="flex items-center justify-between
+                            px-2.5 py-1.5 rounded-md
+                            bg-[#050B1E]
+                            border border-blue-400/20">
+
+                <span class="text-[10px] uppercase tracking-wide text-gray-400">
+                    Current
+                </span>
+
+                <span id="currentDetectionsCount"
+                        class="font-mono text-xs sm:text-sm font-semibold text-blue-300">
+                    0
+                </span>
+                </div>
+
+            </div>
+            </div>
+
+                
+                
+                
+                <div id="liveVideoContainer" class="hidden mb-6">
+                    <div class="bg-white rounded-lg p-4">
+                        <div class="flex items-center mb-4">
+                            <span class="live-indicator"></span>
+                          <h3 class="text-lg font-semibold text-purple-400">
+  Live Video Feed
+</h3>
+
+                        </div>
+                        
+                        <!-- Video Display -->
+                        <div id="liveVideoWrapper" class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
+                            <img id="liveVideoFrame" 
+                                src="" 
+                                alt="Live Stream" 
+                                class="w-full h-full object-contain">
+                            
+                            <!-- Overlay with current detections -->
+                            <div class="absolute top-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
+                                <div class="text-sm">
+                                    Frame: <span id="overlayFrameNumber" class="font-bold">0</span> | 
+                                    Detections: <span id="overlayDetectionCount" class="font-bold text-green-400">0</span>
+                                </div>
+                            </div>
+                            
+                            <!-- FPS Counter -->
+                            <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
+                                <div class="text-sm">
+                                    FPS: <span id="streamFPS" class="font-bold text-blue-400">0</span>
+                                </div>
+                            </div>
+                                            <button
+                    id="fullscreenBtn"
+                    class="absolute bottom-4 right-4 z-10
+                        bg-black bg-opacity-70 text-white
+                        px-3 py-2 rounded-lg
+                        hover:bg-opacity-90 transition"
+                    title="Fullscreen">
+                    ⛶
+                </button>
+                        </div>
+                        
+                        <!-- Detection Details -->
+                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold mb-2">Current Frame Detections:</h4>
+                            <div id="currentFrameDetections" class="flex flex-wrap gap-2">
+                                <span class="text-gray-500 text-sm">No detections yet...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+    
+                <div id="liveDetectionsContainer" class="hidden">
+                    <div class="bg-white rounded-lg p-4">
+                        <div class="flex items-center mb-4">
+                            <span class="live-indicator"></span>
+                            <h3 class="text-lg font-semibold text-purple-400">Detection History</h3>
+                        </div>
+                        <div id="liveDetectionsList" class="space-y-3 max-h-96 overflow-y-auto">
+                            <div class="text-center py-8 text-gray-500">Waiting for detections...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                </div>
+
+
+
+
+
+            </div>   
+
+
+            <div id="demoTab"class="tab-content">
+                <!-- Demo content -->
+  <div class="bg-white rounded-2xl p-8 shadow-lg max-w-4xl mx-auto">
+
+    <!-- Title -->
+    <h2 class="text-2xl font-bold text-slate-800 mb-2">
+      Product Demo
+    </h2>
+    <p class="text-slate-500 mb-6">
+      See how the system works with a sample video — no upload required.
+    </p>
+
+    <!-- Demo Video -->
+    <div class="relative bg-black rounded-xl overflow-hidden mb-6" style="aspect-ratio: 16/9;">
+      <video controls class="w-full h-full object-cover">
+        <source src="/static/demo/demo-video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Demo Actions -->
+    <div class="flex flex-wrap gap-4">
+      <button
+        class="px-6 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">
+        ▶ Run Demo Analysis
+      </button>
+
+      <button
+        class="px-6 py-3 rounded-full border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+        📄 View Sample Results
+      </button>
+    </div>
+
+    <!-- Demo Info -->
+    <div class="mt-6 text-sm text-slate-500">
+      <p>✔ Uses a preloaded sample video</p>
+      <p>✔ No data is stored</p>
+      <p>✔ Results are simulated for demonstration</p>
+    </div>
+
+  </div>
+
+
+                </div>
+
+
+
+
+                <!-- Drive Link Tab -->
+
+                <div id="Drive linkTab" class="tab-content">
+
+                <div class="space-y-4">
+                    
+                    <label class="block text-sm font-medium text-gray-700">
+                    Google Drive Video Link
+                    </label>
+
+                    <input
+                    type="text"
+                    id="driveUrl"
+                    placeholder="https://drive.google.com/file/d/FILE_ID/view"
+                    class="url-input"
+                    oninput="handleDrivePreview()"   
+                    />
+
+                    <p class="hint">
+                    Make sure the file is public or shared with access.
+                    </p>
+
+               
+                    <div id="drivePreview" class="hidden mt-4 flex justify-center">
+                    <iframe
+                        id="driveIframe"
+                        class="w-full max-w-4xl aspect-video rounded-lg border"
+                        allow="autoplay">
+                    </iframe>
+                    </div>
+
+              
+                    <p id="driveFileInfo"
+                    class="text-xs text-gray-500 text-center hidden">
+                    </p>
+
+                    <button
+                    onclick="processDriveVideo()"
+                    class="cta">
+                    Process Drive Video
+                    </button>
+
+                </div>
+
+               <div id="driveProcessingMount"></div>
+                </div>
+
+
+
+
+    <div id="processingContainer" class="hidden">
+    
                 <!-- Upload Section -->
              
         <div id="taskIdDisplay1"
@@ -1137,321 +1514,9 @@
 </div>
 
 
-
-
-
-
-    </div>
-
-          <!-- Live Stream Tab -->
-        <div id="livestreamTab" class="tab-content">
-            
-            
-            <div class="mb-8 rounded-xl p-6 animate-fadeIn 
-            bg-gradient-to-br 
-            from-[#071A2E] via-[#0A2540] to-[#020617] 
-            text-white shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-
-                    <h2 class="text-xl font-semibold text-purple-700">
-                        YouTube Live Stream Detection
-                    </h2>
-
-                    <!-- <button id="stopStreamBtn"
-                            class="px-3 py-1.5 rounded-md
-                                    text-sm font-medium
-                                    text-white
-                                    bg-red-600 hover:bg-red-700
-                                    transition">
-                        Stop
-                    </button> -->
-
-                    </div>
-
-             <div id="liveStreamForm" class="mb-6">
-
-  <!-- Input -->
-  <div class="space-y-3 mb-4">
-
-    <div>
-      <label class="block text-xs font-medium text-gray-400 mb-1">
-        YouTube Live Stream URL
-      </label>
-
-      <input
-        type="text"
-        id="youtubeUrl"
-        placeholder="https://www.youtube.com/watch?v=..."
-        class="w-full px-3 py-2 rounded-md
-               bg-[#050B1E]
-               border border-slate-700/60
-               text-sm text-white
-               placeholder:text-gray-500
-               focus:outline-none focus:border-purple-500/60" />
-    </div>
-
-    <!-- Hidden advanced control (kept clean) -->
-    <div class="hidden">
-      <label class="text-xs text-gray-400">
-        Process every
-        <span id="frameIntervalValue"
-              class="font-mono text-purple-400">5</span>
-        frames
-      </label>
-
-      <input
-        type="range"
-        id="frameInterval"
-        min="1" max="30" value="5"
-        class="w-full"
-        onchange="document.getElementById('frameIntervalValue').textContent = this.value">
-    </div>
-
-  </div>
-
-  <!-- Actions -->
-  <div class="flex items-center gap-2">
-
-    <button
-      onclick="startLiveStream()"
-      id="startStreamBtn"
-      class="px-4 py-2 rounded-md
-             text-sm font-medium
-             text-white
-             bg-purple-600 hover:bg-purple-700
-             transition">
-      Start Detection
-    </button>
-
-    <button
-      onclick="stopLiveStream()"
-      id="stopStreamBtn"
-      class="px-4 py-2 rounded-md
-             text-sm font-medium
-             text-red-400
-             border border-red-500/30
-             hover:bg-red-500/10
-             transition hidden">
-      🛑 Stop
-    </button>
-
-  </div>
-
+        
 </div>
 
-
-            <div id="streamStatusContainer" class="hidden mt-5">
-
-            <!-- Status Panel -->
-            <div class="rounded-lg
-                        bg-[#050B1E]
-                        border border-slate-700/50
-                        px-4 py-3 mb-4">
-
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-
-                <!-- Connection -->
-                <div class="flex items-center gap-2 text-sm">
-                    <span class="text-gray-400">Connection</span>
-
-                    <span id="connectionStatus"
-                        class="px-2 py-0.5 rounded-md
-                                text-xs font-medium
-                                bg-slate-800 text-gray-300">
-                    Disconnected
-                    </span>
-                </div>
-
-                <!-- Stream -->
-                <div class="flex items-center gap-2 text-sm">
-                    <span class="text-gray-400">Stream</span>
-
-                    <span id="streamStatus"
-                        class="text-xs font-medium text-gray-400">
-                    Not Started
-                    </span>
-                </div>
-
-                </div>
-            </div>
-
-            <!-- Telemetry Stats -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
-
-                <!-- Frames -->
-                <div class="flex items-center justify-between
-                            px-2.5 py-1.5 rounded-md
-                            bg-[#050B1E]
-                            border border-emerald-400/20">
-
-                <span class="text-[10px] uppercase tracking-wide text-gray-400">
-                    Frames
-                </span>
-
-                <span id="liveFramesCount"
-                        class="font-mono text-xs sm:text-sm font-semibold text-emerald-300">
-                    0
-                </span>
-                </div>
-
-                <!-- Total -->
-                <div class="flex items-center justify-between
-                            px-2.5 py-1.5 rounded-md
-                            bg-[#050B1E]
-                            border border-emerald-400/20">
-
-                <span class="text-[10px] uppercase tracking-wide text-gray-400">
-                    Total
-                </span>
-
-                <span id="liveDetectionsCount"
-                        class="font-mono text-xs sm:text-sm font-semibold text-emerald-300">
-                    0
-                </span>
-                </div>
-
-                <!-- Current -->
-                <div class="flex items-center justify-between
-                            px-2.5 py-1.5 rounded-md
-                            bg-[#050B1E]
-                            border border-blue-400/20">
-
-                <span class="text-[10px] uppercase tracking-wide text-gray-400">
-                    Current
-                </span>
-
-                <span id="currentDetectionsCount"
-                        class="font-mono text-xs sm:text-sm font-semibold text-blue-300">
-                    0
-                </span>
-                </div>
-
-            </div>
-            </div>
-
-                
-                
-                
-                <div id="liveVideoContainer" class="hidden mb-6">
-                    <div class="bg-white rounded-lg p-4">
-                        <div class="flex items-center mb-4">
-                            <span class="live-indicator"></span>
-                          <h3 class="text-lg font-semibold text-purple-400">
-  Live Video Feed
-</h3>
-
-                        </div>
-                        
-                        <!-- Video Display -->
-                        <div id="liveVideoWrapper" class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
-                            <img id="liveVideoFrame" 
-                                src="" 
-                                alt="Live Stream" 
-                                class="w-full h-full object-contain">
-                            
-                            <!-- Overlay with current detections -->
-                            <div class="absolute top-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
-                                <div class="text-sm">
-                                    Frame: <span id="overlayFrameNumber" class="font-bold">0</span> | 
-                                    Detections: <span id="overlayDetectionCount" class="font-bold text-green-400">0</span>
-                                </div>
-                            </div>
-                            
-                            <!-- FPS Counter -->
-                            <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
-                                <div class="text-sm">
-                                    FPS: <span id="streamFPS" class="font-bold text-blue-400">0</span>
-                                </div>
-                            </div>
-                                            <button
-                    id="fullscreenBtn"
-                    class="absolute bottom-4 right-4 z-10
-                        bg-black bg-opacity-70 text-white
-                        px-3 py-2 rounded-lg
-                        hover:bg-opacity-90 transition"
-                    title="Fullscreen">
-                    ⛶
-                </button>
-                        </div>
-                        
-                        <!-- Detection Details -->
-                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
-                            <h4 class="font-semibold mb-2">Current Frame Detections:</h4>
-                            <div id="currentFrameDetections" class="flex flex-wrap gap-2">
-                                <span class="text-gray-500 text-sm">No detections yet...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-    
-                <div id="liveDetectionsContainer" class="hidden">
-                    <div class="bg-white rounded-lg p-4">
-                        <div class="flex items-center mb-4">
-                            <span class="live-indicator"></span>
-                            <h3 class="text-lg font-semibold text-purple-400">Detection History</h3>
-                        </div>
-                        <div id="liveDetectionsList" class="space-y-3 max-h-96 overflow-y-auto">
-                            <div class="text-center py-8 text-gray-500">Waiting for detections...</div>
-                        </div>
-                    </div>
-                </div>
-                
-                </div>
-
-
-
-
-
-            </div>   
-
-
-            <div id="demoTab"class="tab-content">
-                <!-- Demo content -->
-  <div class="bg-white rounded-2xl p-8 shadow-lg max-w-4xl mx-auto">
-
-    <!-- Title -->
-    <h2 class="text-2xl font-bold text-slate-800 mb-2">
-      Product Demo
-    </h2>
-    <p class="text-slate-500 mb-6">
-      See how the system works with a sample video — no upload required.
-    </p>
-
-    <!-- Demo Video -->
-    <div class="relative bg-black rounded-xl overflow-hidden mb-6" style="aspect-ratio: 16/9;">
-      <video controls class="w-full h-full object-cover">
-        <source src="/static/demo/demo-video.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-    </div>
-
-    <!-- Demo Actions -->
-    <div class="flex flex-wrap gap-4">
-      <button
-        class="px-6 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">
-        ▶ Run Demo Analysis
-      </button>
-
-      <button
-        class="px-6 py-3 rounded-full border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
-        📄 View Sample Results
-      </button>
-    </div>
-
-    <!-- Demo Info -->
-    <div class="mt-6 text-sm text-slate-500">
-      <p>✔ Uses a preloaded sample video</p>
-      <p>✔ No data is stored</p>
-      <p>✔ Results are simulated for demonstration</p>
-    </div>
-
-  </div>
-
-
-                </div>
 
 </section>
 
@@ -1832,7 +1897,7 @@ function handleVideoSelect(input) {
         }
 
         // Upload and process video
- async function uploadAndProcessVideo() {
+async function uploadAndProcessVideo() {
     if (processing) return; // hard guard
 
     const fileInput = document.getElementById('videoFile');
@@ -1852,6 +1917,10 @@ function handleVideoSelect(input) {
     }
 
     processing = true;
+
+    // 🔥🔥 THIS IS THE CORRECT PLACE
+    mountProcessingUI('upload');
+    resetProcessingUI();
 
     // UI STATE
     document.getElementById('uploadForm').classList.add('hidden');
@@ -1877,6 +1946,7 @@ function handleVideoSelect(input) {
     xhr.upload.onprogress = (event) => {
         if (!event.lengthComputable) return;
         const percent = 5 + (event.loaded / event.total) * 20;
+
         updateProgressUI({
             stage: 'uploading',
             progress: percent,
@@ -1887,6 +1957,7 @@ function handleVideoSelect(input) {
     xhr.onload = async () => {
         if (xhr.status >= 200 && xhr.status < 300) {
             let data;
+
             try {
                 data = JSON.parse(xhr.responseText);
             } catch {
@@ -1897,10 +1968,10 @@ function handleVideoSelect(input) {
             currentTaskId = data.task_id;
 
             document.getElementById('taskIdDisplay').classList.remove('hidden');
-            
             document.getElementById('currentTaskId').textContent = currentTaskId;
 
             await connectWebSocket(currentTaskId);
+
         } else {
             onProcessingError(`Server error ${xhr.status}`);
         }
@@ -1916,7 +1987,6 @@ function handleVideoSelect(input) {
 
     xhr.send(formData);
 }
-
 // function cancelProcessing() {
 //     if (!processing) return;
 
@@ -2750,33 +2820,48 @@ function cancelProcessing() {
         });
 
         // Tab Switching Function
-        function switchTab(tabName) {
-                console.log(tabName)
-                        if (tabName === 'demo') {
-                          document.getElementById('demoTab').classList.remove('hidden');
-            }
-            else{
-                 document.getElementById('demoTab').classList.remove('active');
-            }
-            // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+        // function switchTab(tabName) {
+        //         console.log(tabName)
+        //                 if (tabName === 'demo') {
+        //                   document.getElementById('demoTab').classList.remove('hidden');
+        //     }
+        //     else{
+        //          document.getElementById('demoTab').classList.remove('active');
+        //     }
+        //     // Update tab buttons
+        //     document.querySelectorAll('.tab-button').forEach(btn => {
+        //         btn.classList.remove('active');
+        //     });
+        //     event.target.classList.add('active');
 
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+        //     // Update tab content
+        //     document.querySelectorAll('.tab-content').forEach(content => {
+        //         content.classList.remove('active');
+        //     });
             
-            document.getElementById(tabName + 'Tab').classList.add('active');
+        //     document.getElementById(tabName + 'Tab').classList.add('active');
 
-            // Clean up when switching tabs
-            if (tabName === 'upload' && liveStreamWs) {
-                stopLiveStream();
-            }
+        //     // Clean up when switching tabs
+        //     if (tabName === 'upload' && liveStreamWs) {
+        //         stopLiveStream();
+        //     }
+        // }
+
+
+
+        function switchTab(tabName) {
+            const tabs = ['upload', 'livestream', 'Drive link', 'demo'];
+
+            tabs.forEach(name => {
+                const tabId = name + 'Tab';
+                document.getElementById(tabId)?.classList.remove('active');
+            });
+
+            document.getElementById(tabName + 'Tab')?.classList.add('active');
+
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
         }
-
 
 
         function toggleFullscreen() {
@@ -2827,10 +2912,6 @@ function showFullFrame(imgUrl, frameNumber, timestamp, detections) {
   document.body.style.overflow = "hidden";
 }
 
-// function closeFullFrame() {
-//   document.getElementById("fullFrameSection").classList.add("hidden");
-//   currentFullFrameData = null;
-// }
 
 function closeFullFrame() {
   document.getElementById("fullFrameModal").classList.add("hidden");
@@ -2838,14 +2919,6 @@ function closeFullFrame() {
 }
 
 
-
-// function openModalFromFullFrame() {
-//   if (!currentFullFrameData) return;
-
-//   const { imgUrl, frameNumber, timestamp, detections } = currentFullFrameData;
-
-//   openModal(imgUrl, frameNumber, timestamp, detections);
-// }
 
 
 function openModalFromFullFrame(src) {
@@ -2855,6 +2928,261 @@ function openModalFromFullFrame(src) {
   img.src = src;
   modal.classList.remove("hidden");
   document.body.style.overflow = "hidden"; // prevent scroll
+}
+
+
+function extractDriveFileId(url) {
+    const match = url.match(/\/d\/(.*?)\//);
+    return match ? match[1] : null;
+}
+
+
+        // async function processDriveVideo() {
+        //     const url = document.getElementById('driveUrl').value;
+
+        //     if (!url) {
+        //         alert('Please enter a Drive link');
+        //         return;
+        //     }
+
+        //     const fileId = extractDriveFileId(url);
+
+        //     if (!fileId) {
+        //         alert('Invalid Google Drive link');
+        //         return;
+        //     }
+
+        //     try {
+        //         // UI same as upload flow
+        //         document.getElementById('progressContainer').classList.remove('hidden');
+        //         document.getElementById('taskIdDisplay1').classList.remove('hidden');
+
+        //         updateProgressUI({
+        //             stage: 'uploading',
+        //             progress: 5,
+        //             message: 'Fetching video from Google Drive...'
+        //         });
+
+        //         const response = await fetch('/process_drive_video', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify({ file_id: fileId })
+        //         });
+
+        //         const data = await response.json();
+
+        //         if (!response.ok) {
+        //             throw new Error(data.message || 'Failed to process Drive video');
+        //         }
+
+        //         currentTaskId = data.task_id;
+
+        //         document.getElementById('taskIdDisplay').classList.remove('hidden');
+        //         document.getElementById('currentTaskId').textContent = currentTaskId;
+
+        //         await connectWebSocket(currentTaskId);
+
+        //     } catch (err) {
+        //         console.error(err);
+        //         showStatus('uploadStatus', err.message, 'error');
+        //     }
+        // }
+
+
+
+
+async function processDriveVideo() {
+
+    mountProcessingUI('drive');
+    const url = document.getElementById('driveUrl').value;
+
+    const match = url.match(/\/d\/(.*?)\//);
+    const fileId = match ? match[1] : null;
+
+    if (!fileId) {
+        alert("Invalid Drive link");
+        return;
+    }
+
+    // 🔥 INIT UI (VERY IMPORTANT)
+    initUIForProcessing();
+
+    try {
+        const file = await fetchDriveVideoAsFile(fileId);
+        await uploadFileToBackend(file);
+
+    } catch (err) {
+        console.warn("Fallback to backend:", err);
+        await processViaBackend(fileId);
+    }
+}
+async function fetchDriveVideoAsFile(fileId) {
+    const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("Drive fetch failed (CORS or access issue)");
+    }
+
+    const blob = await response.blob();
+
+    // ❗ Large file protection (100MB limit)
+    if (blob.size > 100 * 1024 * 1024) {
+        throw new Error("File too large for browser upload");
+    }
+
+    return new File([blob], "drive_video.mp4", {
+        type: blob.type || "video/mp4"
+    });
+}
+
+
+async function uploadFileToBackend(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("similarity_threshold", 0.95);
+
+    const response = await fetch("/Upload_Video", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.detail || "Upload failed");
+    }
+
+
+    currentTaskId = data.task_id;
+    document.getElementById('currentTaskId').textContent = currentTaskId;
+
+
+    showStatus("uploadStatus", "Processing started!", "success");
+
+    await connectWebSocket(currentTaskId);
+}
+
+
+
+async function processViaBackend(fileId) {
+    const response = await fetch("/process_drive_video", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ file_id: fileId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.detail || "Backend processing failed");
+    }
+
+    currentTaskId = data.task_id;
+    document.getElementById('currentTaskId').textContent = currentTaskId;
+
+    showStatus("uploadStatus", "Processing via server started!", "success");
+
+    await connectWebSocket(currentTaskId);
+}
+
+
+function showStatus(id, message, type) {
+    const el = document.getElementById(id);
+    el.innerText = message;
+
+    el.className = `status ${type}`;
+}
+
+function handleDrivePreview() {
+            const url = document.getElementById('driveUrl').value;
+            const preview = document.getElementById('drivePreview');
+            const iframe = document.getElementById('driveIframe');
+            const info = document.getElementById('driveFileInfo');
+
+            if (!url) {
+                preview.classList.add('hidden');
+                info.classList.add('hidden');
+                return;
+            }
+
+            const match = url.match(/\/d\/(.*?)\//);
+            const fileId = match ? match[1] : null;
+
+            if (!fileId) {
+                info.textContent = "❌ Invalid Google Drive link";
+                info.classList.remove('hidden');
+                preview.classList.add('hidden');
+                return;
+            }
+
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+
+            preview.classList.remove('hidden');
+            info.textContent = "✅ Preview loaded (ensure file is public)";
+            info.classList.remove('hidden');
+        }
+
+
+function showProgressUI() {
+    document.getElementById('taskIdDisplay1').classList.remove('hidden');
+    document.getElementById('progressContainer').classList.remove('hidden');
+    document.getElementById('taskIdDisplay').classList.remove('hidden');
+}
+
+
+function initUIForProcessing() {
+    // Show main container
+    document.getElementById('taskIdDisplay1').classList.remove('hidden');
+
+    // Show progress
+    document.getElementById('progressContainer').classList.remove('hidden');
+
+    // Show task ID section
+    document.getElementById('taskIdDisplay').classList.remove('hidden');
+
+    // Hide old results (important)
+    document.getElementById('processingResults').classList.add('hidden');
+    document.getElementById('frameGallery').classList.add('hidden');
+}
+
+task_progress[task_id] = {
+    stage: "uploading",
+    message: "Downloading from Google Drive...",
+}
+
+
+function mountProcessingUI(target) {
+    const container = document.getElementById('processingContainer');
+
+    if (target === 'upload') {
+        document.getElementById('uploadProcessingMount').appendChild(container);
+    } else if (target === 'drive') {
+        document.getElementById('driveProcessingMount').appendChild(container);
+    }
+
+    container.classList.remove('hidden');
+}
+
+
+function mountProcessingUI(target) {
+    const container = document.getElementById('processingContainer');
+
+    if (target === 'upload') {
+        document.getElementById('uploadProcessingMount').appendChild(container);
+    } else {
+        document.getElementById('driveProcessingMount').appendChild(container);
+    }
+
+    container.classList.remove('hidden');
+}
+
+function resetProcessingUI() {
+    document.getElementById('processingResults').classList.add('hidden');
+    document.getElementById('frameGallery').classList.add('hidden');
 }
 
     </script>
